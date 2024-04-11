@@ -1,6 +1,9 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../views/Home/HomeScreen";
 import ProfileScreen from "../views/Profile/ProfileScreen";
+import LoginScreen from "../views/Login/LoginScreen";
+
+import { StyleSheet } from 'react-native';
 
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
@@ -12,18 +15,21 @@ const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
     return (
-        <Tab.Navigator>
+        <Tab.Navigator screenOptions={{
+            tabBarStyle: styles.bottomTab
+        }}>
             <Tab.Screen 
                 name='Home'
                 component={HomeScreen} 
                 options={{
                     tabBarLabel:"Inicio", 
                     tabBarLabelStyle:{color: "white"},
+                    headerShown: false,
                     tabBarIcon: ({focused}) => 
                     focused ? (
-                        <Entypo name="home" size={24} color="black" />
+                        <Entypo name="home" size={24} color="white" />
                     ) : (
-                        <AntDesign name="home" size={24} color="black" />
+                        <AntDesign name="home" size={24} color="white" />
                     )
                 }}
             />
@@ -33,11 +39,12 @@ const BottomTabs = () => {
                 options={{
                     tabBarLabel:"Mi Perfil", 
                     tabBarLabelStyle:{color: "white"},
+                    headerShown: false,
                     tabBarIcon: ({focused}) => 
                     focused ? (
-                        <Ionicons name="person" size={24} color="black" />
+                        <Ionicons name="person" size={24} color="white" />
                     ) : (
-                        <Ionicons name="person-outline" size={24} color="black" />
+                        <Ionicons name="person-outline" size={24} color="white" />
                     )
                 }}
             />
@@ -49,11 +56,29 @@ const Stack = createNativeStackNavigator();
 function Navigation() {
     return (
         <NavigationContainer >
-            <Stack.Navigator initialRouteName='Home'>
-                <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false}}/>
+            <Stack.Navigator>
+                <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false,}}/>    
+                <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
 }
+
+const styles = StyleSheet.create({
+    bottomTab: {
+        backgroundColor: "#180000",
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        shadowOpacity: 4,
+        elevation: 4,
+        shadowOffset:{
+            width: 0,
+            height: -4
+        },
+        borderTopWidth: 0
+    }
+})
 
 export default Navigation;

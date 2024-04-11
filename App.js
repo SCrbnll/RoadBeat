@@ -4,7 +4,9 @@ import Navigation from './src/routes/StackNavigator';
 
 export default function App() {
   return (
-    <Navigation />
+    <>
+      <Navigation />
+    </>
   );
 }
 
