@@ -28,7 +28,7 @@ const CustomText = (props) => {
     );
 };
 
-const LoginScreen = () => {
+const RegisterScreen = () => {
     const navigation = useNavigation();
 
     const handlePress = (screenName) => {
@@ -145,4 +145,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LoginScreen;
+export default RegisterScreen;

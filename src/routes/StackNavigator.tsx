@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../views/Home/HomeScreen";
 import ProfileScreen from "../views/Profile/ProfileScreen";
 import LoginScreen from "../views/Login/LoginScreen";
+import RegisterScreen from "../views/Register/RegisterScreen";
 
 import { StyleSheet } from 'react-native';
 
@@ -57,7 +58,8 @@ function Navigation() {
     return (
         <NavigationContainer >
             <Stack.Navigator>
-                <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false,}}/>    
+                <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false,}}/>  
+                <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
             </Stack.Navigator>
         </NavigationContainer>
