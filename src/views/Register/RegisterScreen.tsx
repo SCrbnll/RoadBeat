@@ -44,9 +44,23 @@ const RegisterScreen = () => {
                     resizeMode="contain"
                 />
                 <View style = {styles.container}>
-                    <CustomText style={styles.title}> ¡Bienvenido de nuevo! </CustomText>
-                    <CustomText style={styles.subtititle}> Inserta tus credenciales aquí </CustomText>
+                    <CustomText style={styles.title}> ¡Registrate con nosotros! </CustomText>
+                    <CustomText style={styles.subtititle}> Escribe los datos necesarios </CustomText>
                     <View style={{padding: 25}}></View>
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="Nombre completo"
+                        placeholderTextColor="#7A7A7A"
+                    />
+                    <View style={styles.textInputLine} />
+                    <View style={{padding: 15}}></View>
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="Nombre de usuario"
+                        placeholderTextColor="#7A7A7A"
+                    />
+                    <View style={styles.textInputLine} />
+                    <View style={{padding: 15}}></View>
                     <TextInput
                         style={styles.textInput}
                         placeholder="Dirección de email"
@@ -61,15 +75,10 @@ const RegisterScreen = () => {
                     />
                     <View style={styles.textInputLine} />
                     <TouchableOpacity style = {styles.button} onPress={() => handlePress('Main')}>
-                        <CustomText style={styles.buttonTitle}>Iniciar sesión</CustomText>
+                        <CustomText style={styles.buttonTitle}>Crear cuenta</CustomText>
                     </TouchableOpacity> 
                 </View>
             </SafeAreaView>
-            <TouchableOpacity style={styles.registerButton} onPress={() => handlePress('Register')}>
-                <CustomText style={styles.subtititle}>¿No tienes cuenta?</CustomText>
-                <CustomText style={styles.register}>Registrate aquí</CustomText>
-            </TouchableOpacity>
-            
         </LinearGradient>
     );
 };
@@ -78,7 +87,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '30%',
-        top: 100,
+        top: 70,
         flex : 0,
     },
     button: {
@@ -87,7 +96,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginLeft: 'auto',
         marginRight: 'auto',
-        width: 300,
+        width: 220,
         borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',
@@ -104,8 +113,8 @@ const styles = StyleSheet.create({
     container : {
         backgroundColor: '#000000',
         marginHorizontal: 30,
-        top: 150, 
-        height: 300
+        top: 100, 
+        height: 400
     }, 
     title:{
         textAlign: 'center',
@@ -132,16 +141,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#7A7A7A', 
         width: '80%',
         alignSelf: 'center',
-    },
-    register: {
-        color: '#FFFFFF',
-        textDecorationLine: 'underline',
-        textAlign: 'center',
-        fontSize: 10, 
-        top: 30
-    },
-    registerButton:{
-        top: 60
     },
 });
 

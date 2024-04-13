@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput, Alert, FlatList } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import * as Font from 'expo-font';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const CustomText = (props) => {
     const [fontLoaded, setFontLoaded] = useState(false);
@@ -27,10 +28,48 @@ const CustomText = (props) => {
         </Text>
     );
 };
+const ShowAlert = (title, message) => {
+    Alert.alert(
+        title, message,[
+        {
+          text: 'OK',
+          style: 'cancel',
+        },],
+    );
+};
 
 const LoginScreen = () => {
+    const emailInputRef = useRef<TextInput>(null);
+    const passwordInputRef = useRef<TextInput>(null);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
 
+    const toggleShowPassword = () => { 
+        setShowPassword(!showPassword); 
+    };
+
+    const checkLogin = async () => {
+        try {
+            const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
+            // Parse the JSON response
+            const users = await response.json(); 
+            console.log(users)            
+            // Check if the user exists and the email and password match
+            if (!users.error || !users == null) {
+                // User exists, navigate to the main screen
+                handlePress('Main')
+            } else {
+                // User does not exist, show an error message
+                ShowAlert('Error', 'Invalid email or password');
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            // Handle any errors that occur during the request
+            ShowAlert('Error', 'An error occurred while logging in');
+        }
+    }
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
@@ -48,19 +87,34 @@ const LoginScreen = () => {
                     <CustomText style={styles.subtititle}> Inserta tus credenciales aquí </CustomText>
                     <View style={{padding: 25}}></View>
                     <TextInput
+                        ref={emailInputRef}
                         style={styles.textInput}
                         placeholder="Dirección de email"
                         placeholderTextColor="#7A7A7A"
+                        onChangeText={text => setEmail(text)}
+                        value={email}
                     />
                     <View style={styles.textInputLine} />
                     <View style={{padding: 15}}></View>
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="Contraseña"
-                        placeholderTextColor="#7A7A7A"
-                    />
+                    <View style={styles.passwordContainer} >
+                        <TextInput
+                            ref={passwordInputRef}
+                            secureTextEntry={!showPassword} 
+                            style={showPassword ? styles.passwordInputOff : styles.passwordInputOn} 
+                            placeholder="Contraseña"
+                            placeholderTextColor="#7A7A7A"
+                            onChangeText={text => setPassword(text)}
+                            value={password}
+                        />
+                        <MaterialCommunityIcons 
+                            name={showPassword ? 'eye-off' : 'eye'} 
+                            size={20} 
+                            style={showPassword ? styles.iconOff : styles.iconOn} 
+                            onPress={toggleShowPassword} 
+                        /> 
+                    </View>
                     <View style={styles.textInputLine} />
-                    <TouchableOpacity style = {styles.button} onPress={() => handlePress('Main')}>
+                    <TouchableOpacity style = {styles.button} onPress={checkLogin}>
                         <CustomText style={styles.buttonTitle}>Iniciar sesión</CustomText>
                     </TouchableOpacity> 
                 </View>
@@ -69,7 +123,6 @@ const LoginScreen = () => {
                 <CustomText style={styles.subtititle}>¿No tienes cuenta?</CustomText>
                 <CustomText style={styles.register}>Registrate aquí</CustomText>
             </TouchableOpacity>
-            
         </LinearGradient>
     );
 };
@@ -87,7 +140,7 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginLeft: 'auto',
         marginRight: 'auto',
-        width: 300,
+        width: 220,
         borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',
@@ -122,9 +175,8 @@ const styles = StyleSheet.create({
     },
     textInput: {
         backgroundColor: 'transparent',  
-        fontFamily: 'krona-one',
-        fontSize: 10, 
-        color: '#333',
+        fontSize: 14, 
+        color: '#FFFFFF',
         left: 35
     },
     textInputLine: {
@@ -142,6 +194,31 @@ const styles = StyleSheet.create({
     },
     registerButton:{
         top: 60
+    },
+    passwordContainer:{
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+    },
+    passwordInputOff:{
+        flex: 0, 
+        paddingVertical: 1, 
+        left: -85,
+        color: '#FFFFFF'
+    },
+    passwordInputOn:{
+        flex: 0, 
+        paddingVertical: 1, 
+        left: -79, 
+        color: '#FFFFFF'
+    },
+    iconOff: { 
+        right: -70,
+        color: '#7A7A7A'
+    },
+    iconOn: { 
+        right: -65,
+        color: '#7A7A7A'
     },
 });
 
