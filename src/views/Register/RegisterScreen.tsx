@@ -1,44 +1,13 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
+import { StyleSheet, View, Image, TouchableOpacity, TextInput, KeyboardAvoidingView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
-import * as Font from 'expo-font';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
-const CustomText = (props) => {
-    const [fontLoaded, setFontLoaded] = useState(false);
-  
-    useEffect(() => {
-        async function loadFont() {
-            await Font.loadAsync({
-            'krona-one': require('../../assets/fonts/KronaOne-Regular.ttf'),
-            });
-  
-            setFontLoaded(true);
-        }
-        loadFont();
-            }, []);
-        if (!fontLoaded) {
-            return <Text>Loading...</Text>;
-        }
-        return (
-        <Text style={{ ...props.style, fontFamily: 'krona-one' }}>
-            {props.children}
-        </Text>
-    );
-};
-const ShowAlert = (title, message) => {
-    Alert.alert(
-        title, message,[
-        {
-          text: 'OK',
-          style: 'cancel',
-        },],
-    );
-};
+import CustomText from '../../components/CustomText';
+import ShowAlert from '../../components/ShowAlert';
+import Line from '../../components/Line';
 
 const RegisterScreen = () => {
     const nameInputRef = useRef<TextInput>(null);
@@ -117,7 +86,7 @@ const RegisterScreen = () => {
                         onChangeText={text => setName(text)}
                         value={name}
                     />
-                    <View style={styles.textInputLine} />
+                    <Line />
                     <View style={{padding: 15}}></View>
                     <TextInput
                         ref={usernameInputRef}
@@ -127,7 +96,7 @@ const RegisterScreen = () => {
                         onChangeText={text => setUsername(text)}
                         value={username}
                     />
-                    <View style={styles.textInputLine} />
+                    <Line />
                     <View style={{padding: 15}}></View>
                     <TextInput
                         ref={emailInputRef}
@@ -137,7 +106,7 @@ const RegisterScreen = () => {
                         onChangeText={text => setEmail(text)}
                         value={email}
                     />
-                    <View style={styles.textInputLine} />
+                    <Line />
                     <View style={{padding: 15}}></View>
                     <View style={styles.passwordContainer} >
                         <TextInput
@@ -156,7 +125,7 @@ const RegisterScreen = () => {
                             onPress={toggleShowPassword} 
                         /> 
                     </View>
-                    <View style={styles.textInputLine} />
+                    <Line />
                     <TouchableOpacity style = {styles.button} onPress={checkRegister}>
                         <CustomText style={styles.buttonTitle}>Crear cuenta</CustomText>
                     </TouchableOpacity> 
@@ -216,12 +185,6 @@ const styles = StyleSheet.create({
         fontSize: 14, 
         color: '#FFFFFF',
         left: 35
-    },
-    textInputLine: {
-        borderBottomWidth: 2, 
-        borderBottomColor: '#7A7A7A', 
-        width: '80%',
-        alignSelf: 'center',
     },
     passwordContainer:{
         flexDirection: 'row', 

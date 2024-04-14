@@ -1,43 +1,15 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, SafeAreaView, Image, TouchableOpacity, TextInput } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
-import * as Font from 'expo-font';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const CustomText = (props) => {
-    const [fontLoaded, setFontLoaded] = useState(false);
-  
-    useEffect(() => {
-        async function loadFont() {
-            await Font.loadAsync({
-            'krona-one': require('../../assets/fonts/KronaOne-Regular.ttf'),
-            });
-  
-            setFontLoaded(true);
-        }
-        loadFont();
-            }, []);
-        if (!fontLoaded) {
-            return <Text>Loading...</Text>;
-        }
-        return (
-        <Text style={{ ...props.style, fontFamily: 'krona-one' }}>
-            {props.children}
-        </Text>
-    );
-};
-const ShowAlert = (title, message) => {
-    Alert.alert(
-        title, message,[
-        {
-          text: 'OK',
-          style: 'cancel',
-        },],
-    );
-};
+import CustomText from '../../components/CustomText';
+import ShowAlert from '../../components/ShowAlert';
+import Line from '../../components/Line';
+
 
 const LoginScreen = () => {
     const emailInputRef = useRef<TextInput>(null);
@@ -113,7 +85,7 @@ const LoginScreen = () => {
                         onChangeText={text => setEmail(text)}
                         value={email}
                     />
-                    <View style={styles.textInputLine} />
+                    <Line />
                     <View style={{padding: 15}}></View>
                     <View style={styles.passwordContainer} >
                         <TextInput
@@ -132,7 +104,7 @@ const LoginScreen = () => {
                             onPress={toggleShowPassword} 
                         /> 
                     </View>
-                    <View style={styles.textInputLine} />
+                    <Line />
                     <TouchableOpacity style = {styles.button} onPress={checkLogin}>
                         <CustomText style={styles.buttonTitle}>Iniciar sesión</CustomText>
                     </TouchableOpacity> 

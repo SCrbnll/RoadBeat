@@ -1,9 +1,10 @@
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, StatusBar} from 'react-native';
 import Navigation from './src/routes/StackNavigator';
 
 export default function App() {
   return (
     <>
+      <StatusBar translucent={true} barStyle="light-content" />
       <Navigation />
     </>
   );

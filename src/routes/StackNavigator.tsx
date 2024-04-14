@@ -3,15 +3,19 @@ import HomeScreen from "../views/Home/HomeScreen";
 import ProfileScreen from "../views/Profile/ProfileScreen";
 import LoginScreen from "../views/Login/LoginScreen";
 import RegisterScreen from "../views/Register/RegisterScreen";
+import HistoryScreen from "../views/History/HistoryScreen";
 
 import { StyleSheet } from 'react-native';
 
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
+import { SimpleLineIcons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 
+import Header from "../components/Header";
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
@@ -25,7 +29,7 @@ const BottomTabs = () => {
                 options={{
                     tabBarLabel:"Inicio", 
                     tabBarLabelStyle:{color: "white"},
-                    headerShown: false,
+                    header: () => <Header />,
                     tabBarIcon: ({focused}) => 
                     focused ? (
                         <Entypo name="home" size={24} color="white" />
@@ -35,12 +39,27 @@ const BottomTabs = () => {
                 }}
             />
             <Tab.Screen 
+                name='History'
+                component={HistoryScreen} 
+                options={{
+                    tabBarLabel:"Historial", 
+                    tabBarLabelStyle:{color: "white"},
+                    headerShown: true,
+                    tabBarIcon: ({focused}) => 
+                    focused ? (
+                        <Octicons name="history" size={24} color="white" />
+                    ) : (
+                        <SimpleLineIcons name="clock" size={24} color="white" />
+                    )
+                }}
+            />
+            <Tab.Screen 
                 name="Profile" 
                 component={ProfileScreen} 
                 options={{
                     tabBarLabel:"Mi Perfil", 
                     tabBarLabelStyle:{color: "white"},
-                    headerShown: false,
+                    headerShown: true,
                     tabBarIcon: ({focused}) => 
                     focused ? (
                         <Ionicons name="person" size={24} color="white" />
@@ -79,7 +98,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: -4
         },
-        borderTopWidth: 0
+        borderTopWidth: 0,
     }
 })
 
