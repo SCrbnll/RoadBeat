@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput, Alert, FlatList } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -55,9 +56,22 @@ const LoginScreen = () => {
             const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
             // Parse the JSON response
             const users = await response.json(); 
-            console.log(users)            
+            console.log(users)      
             // Check if the user exists and the email and password match
             if (!users.error || !users == null) {
+                // Save user info to AsyncStorage
+                const userInfo = JSON.stringify(users);
+                await AsyncStorage.setItem('user_info', userInfo);
+                console.log('User info saved to AsyncStorage');
+
+                /* =================================================================
+                                How to obtain the data of user_info
+                ====================================================================
+                const retrievedUserInfo = await AsyncStorage.getItem('user_info');
+                const parsedUserInfo = JSON.parse(retrievedUserInfo);
+                console.log(parsedUserInfo)
+                */
+
                 // User exists, navigate to the main screen
                 handlePress('Main')
             } else {
