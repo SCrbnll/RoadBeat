@@ -1,9 +1,12 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import * as Font from 'expo-font';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const CustomText = (props) => {
     const [fontLoaded, setFontLoaded] = useState(false);
@@ -27,17 +30,76 @@ const CustomText = (props) => {
         </Text>
     );
 };
+const ShowAlert = (title, message) => {
+    Alert.alert(
+        title, message,[
+        {
+          text: 'OK',
+          style: 'cancel',
+        },],
+    );
+};
 
 const RegisterScreen = () => {
+    const nameInputRef = useRef<TextInput>(null);
+    const usernameInputRef = useRef<TextInput>(null);
+    const emailInputRef = useRef<TextInput>(null);
+    const passwordInputRef = useRef<TextInput>(null);
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
+
+    const toggleShowPassword = () => { 
+        setShowPassword(!showPassword); 
+    };
+
+    const checkRegister = async () => {
+        if(name.length === 0 || username.length === 0 || email.length === 0 || password.length === 0) {
+            ShowAlert('Error', 'Debes rellenar todos los campos')
+        } else {
+            try {
+                // Register the User
+                const response = await fetch('http://10.0.2.2:8080/usuarios', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        nombre: name,
+                        username: username,
+                        password: password,
+                    }),
+                });
+                // ID of the new User
+                const idUser = await response.json(); 
+                console.log(idUser) 
+    
+                // Save the new User into user_info
+                const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ idUser);
+                const users = await userInfo.json(); 
+                const infoUser = JSON.stringify(users);
+                await AsyncStorage.setItem('user_info', infoUser);
+                console.log('User info saved to AsyncStorage');
+                console.log(infoUser)
+                handlePress('Main')
+            } catch (error) {  
+                ShowAlert('Error', 'This email is already used')
+            }
+        }
+    }
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
 
     return (
-        <LinearGradient colors={['#040306', '#210000']} style={{ flex: 1 }}>
-            <SafeAreaView style={{ paddingTop: Constants.statusBarHeight }}>
+        <LinearGradient colors={['#040306', '#210000']} style={{ flex: 1}}>
+            <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
                 <Image
                     source={require('../../assets/images/logo-full.png')}
                     style={styles.image}
@@ -48,37 +110,58 @@ const RegisterScreen = () => {
                     <CustomText style={styles.subtititle}> Escribe los datos necesarios </CustomText>
                     <View style={{padding: 25}}></View>
                     <TextInput
+                        ref={nameInputRef}
                         style={styles.textInput}
                         placeholder="Nombre completo"
                         placeholderTextColor="#7A7A7A"
+                        onChangeText={text => setName(text)}
+                        value={name}
                     />
                     <View style={styles.textInputLine} />
                     <View style={{padding: 15}}></View>
                     <TextInput
+                        ref={usernameInputRef}
                         style={styles.textInput}
                         placeholder="Nombre de usuario"
                         placeholderTextColor="#7A7A7A"
+                        onChangeText={text => setUsername(text)}
+                        value={username}
                     />
                     <View style={styles.textInputLine} />
                     <View style={{padding: 15}}></View>
                     <TextInput
+                        ref={emailInputRef}
                         style={styles.textInput}
                         placeholder="Dirección de email"
                         placeholderTextColor="#7A7A7A"
+                        onChangeText={text => setEmail(text)}
+                        value={email}
                     />
                     <View style={styles.textInputLine} />
                     <View style={{padding: 15}}></View>
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="Contraseña"
-                        placeholderTextColor="#7A7A7A"
-                    />
+                    <View style={styles.passwordContainer} >
+                        <TextInput
+                            ref={passwordInputRef}
+                            secureTextEntry={!showPassword} 
+                            style={showPassword ? styles.passwordInputOff : styles.passwordInputOn} 
+                            placeholder="Contraseña"
+                            placeholderTextColor="#7A7A7A"
+                            onChangeText={text => setPassword(text)}
+                            value={password}
+                        />
+                        <MaterialCommunityIcons 
+                            name={showPassword ? 'eye-off' : 'eye'} 
+                            size={20} 
+                            style={showPassword ? styles.iconOff : styles.iconOn} 
+                            onPress={toggleShowPassword} 
+                        /> 
+                    </View>
                     <View style={styles.textInputLine} />
-                    <TouchableOpacity style = {styles.button} onPress={() => handlePress('Main')}>
+                    <TouchableOpacity style = {styles.button} onPress={checkRegister}>
                         <CustomText style={styles.buttonTitle}>Crear cuenta</CustomText>
                     </TouchableOpacity> 
                 </View>
-            </SafeAreaView>
+            </KeyboardAvoidingView>
         </LinearGradient>
     );
 };
@@ -86,9 +169,8 @@ const RegisterScreen = () => {
 const styles = StyleSheet.create({
     image: {
         width: '100%',
-        height: '30%',
-        top: 70,
-        flex : 0,
+        height: '20%',
+        top:70,
     },
     button: {
         backgroundColor: '#580000',
@@ -131,9 +213,8 @@ const styles = StyleSheet.create({
     },
     textInput: {
         backgroundColor: 'transparent',  
-        fontFamily: 'krona-one',
-        fontSize: 10, 
-        color: '#333',
+        fontSize: 14, 
+        color: '#FFFFFF',
         left: 35
     },
     textInputLine: {
@@ -141,6 +222,31 @@ const styles = StyleSheet.create({
         borderBottomColor: '#7A7A7A', 
         width: '80%',
         alignSelf: 'center',
+    },
+    passwordContainer:{
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+    },
+    passwordInputOff:{
+        flex: 0, 
+        paddingVertical: 1, 
+        left: -85,
+        color: '#FFFFFF'
+    },
+    passwordInputOn:{
+        flex: 0, 
+        paddingVertical: 1, 
+        left: -79, 
+        color: '#FFFFFF'
+    },
+    iconOff: { 
+        right: -70,
+        color: '#7A7A7A'
+    },
+    iconOn: { 
+        right: -65,
+        color: '#7A7A7A'
     },
 });
 

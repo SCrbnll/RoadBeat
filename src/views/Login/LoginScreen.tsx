@@ -52,37 +52,42 @@ const LoginScreen = () => {
     };
 
     const checkLogin = async () => {
-        try {
-            const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
-            // Parse the JSON response
-            const users = await response.json(); 
-            console.log(users)      
-            // Check if the user exists and the email and password match
-            if (!users.error || !users == null) {
-                // Save user info to AsyncStorage
-                const userInfo = JSON.stringify(users);
-                await AsyncStorage.setItem('user_info', userInfo);
-                console.log('User info saved to AsyncStorage');
-
-                /* =================================================================
-                                How to obtain the data of user_info
-                ====================================================================
-                const retrievedUserInfo = await AsyncStorage.getItem('user_info');
-                const parsedUserInfo = JSON.parse(retrievedUserInfo);
-                console.log(parsedUserInfo)
-                */
-
-                // User exists, navigate to the main screen
-                handlePress('Main')
-            } else {
-                // User does not exist, show an error message
-                ShowAlert('Error', 'Invalid email or password');
+        if(email.length === 0 || password.length === 0) {
+            ShowAlert('Error', 'Debes rellenar todos los campos')
+        } else {
+            try {
+                const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
+                // Parse the JSON response
+                const users = await response.json(); 
+                console.log(users)      
+                // Check if the user exists and the email and password match
+                if (!users.error || !users == null) {
+                    // Save user info to AsyncStorage
+                    const userInfo = JSON.stringify(users);
+                    await AsyncStorage.setItem('user_info', userInfo);
+                    console.log('User info saved to AsyncStorage');
+    
+                    /* =================================================================
+                                    How to obtain the data of user_info
+                    ====================================================================
+                    const retrievedUserInfo = await AsyncStorage.getItem('user_info');
+                    const parsedUserInfo = JSON.parse(retrievedUserInfo);
+                    console.log(parsedUserInfo)
+                    */
+    
+                    // User exists, navigate to the main screen
+                    handlePress('Main')
+                } else {
+                    // User does not exist, show an error message
+                    ShowAlert('Error', 'Credenciales incorrectas');
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                // Handle any errors that occur during the request
+                ShowAlert('Error', 'An error occurred while logging in');
             }
-        } catch (error) {
-            console.error('Error during login:', error);
-            // Handle any errors that occur during the request
-            ShowAlert('Error', 'An error occurred while logging in');
         }
+        
     }
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
