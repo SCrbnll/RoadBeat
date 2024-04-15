@@ -16,6 +16,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 
 import Header from "../components/Header";
+import SalaDetails from "../views/SalaDetail/SalaDetail";
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
@@ -44,7 +45,7 @@ const BottomTabs = () => {
                 options={{
                     tabBarLabel:"Historial", 
                     tabBarLabelStyle:{color: "white"},
-                    headerShown: true,
+                    header: () => <Header />,
                     tabBarIcon: ({focused}) => 
                     focused ? (
                         <Octicons name="history" size={24} color="white" />
@@ -80,6 +81,7 @@ function Navigation() {
                 <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
+                <Stack.Screen name="SalaDetails" component={SalaDetails} options={{headerShown: false,}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

@@ -36,16 +36,10 @@ const LoginScreen = () => {
                 if (!users.error || !users == null) {
                     // Save user info to AsyncStorage
                     const userInfo = JSON.stringify(users);
+                    const userId = users.id;
+                    await AsyncStorage.setItem('user_id', userId.toString());
                     await AsyncStorage.setItem('user_info', userInfo);
                     console.log('User info saved to AsyncStorage');
-    
-                    /* =================================================================
-                                    How to obtain the data of user_info
-                    ====================================================================
-                    const retrievedUserInfo = await AsyncStorage.getItem('user_info');
-                    const parsedUserInfo = JSON.parse(retrievedUserInfo);
-                    console.log(parsedUserInfo)
-                    */
     
                     // User exists, navigate to the main screen
                     handlePress('Main')

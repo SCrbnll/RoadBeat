@@ -6,10 +6,12 @@ import { useState, useEffect, useRef } from 'react';
 import Clock from '../../components/Clock';
 import Line from '../../components/Line';
 import CustomText from '../../components/CustomText';
+import UserNumberInput from '../../components/NumberInput/NumberInput';
 
 const HomeScreen = () => {
     const nameInputRef = useRef<TextInput>(null);
     const [name, setName] = useState('');
+    const [roomCode, setRoomCode] = useState('');
     const navigation = useNavigation();
 
     return (
@@ -36,6 +38,18 @@ const HomeScreen = () => {
                         <CustomText style={styles.buttonTitle}>Crear sala</CustomText>
                     </TouchableOpacity>
                 </View>
+                <View style={{marginVertical: 25}}></View>
+                <Line />
+                <View style={{padding: 15}} />
+                <View style = {styles.contentBox}>
+                    <CustomText style={styles.titleTwo}> Escribe el código de la sala que deseas unirte </CustomText>
+                    <View style={{padding: 15}}></View>
+                    <UserNumberInput />
+                    <View style={{padding: 15}}></View>
+                    <TouchableOpacity style = {styles.button}>
+                        <CustomText style={styles.buttonTitle}>Unirse a la sala</CustomText>
+                    </TouchableOpacity>
+                </View>
             </View>
         </KeyboardAvoidingView>
     )
@@ -55,6 +69,14 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         left: -5,
     },
+    titleTwo:{
+        fontSize: 12,
+        fontFamily: 'Krona One',
+        top: 25,
+        left: 10,
+        color: '#FFFFFF',
+        textAlign:'center',
+    },
     textInput: {
         backgroundColor: 'transparent',  
         fontSize: 14, 
@@ -66,6 +88,7 @@ const styles = StyleSheet.create({
         width: 320,
         paddingHorizontal: 35,
         alignItems: 'flex-start',
+        alignContent: 'center',
         flex: 0
     },
     textInputLine: {
@@ -91,6 +114,16 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 12
     },
+    input: {
+        width: 40,
+        height: 40,
+        borderWidth: 3,
+        borderColor: 'white',
+        borderRadius: 12,
+        textAlign: 'center',
+        fontSize: 14,
+        fontFamily: 'Wave',
+      },
 });
 
 export default HomeScreen

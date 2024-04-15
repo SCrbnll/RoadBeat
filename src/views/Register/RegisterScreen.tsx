@@ -46,6 +46,7 @@ const RegisterScreen = () => {
                 });
                 // ID of the new User
                 const idUser = await response.json(); 
+                await AsyncStorage.setItem('user_id', idUser)
                 console.log(idUser) 
     
                 // Save the new User into user_info
