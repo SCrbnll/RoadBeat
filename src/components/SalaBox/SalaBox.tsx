@@ -14,6 +14,7 @@ const SalaBox = () => {
         const response = await fetch(`http://10.0.2.2:8080/historial/salasUsuario/${userId}`);
         const jsonData = await response.json();
         setData(jsonData);
+        console.log(jsonData)
       };
   
       fetchData();
@@ -24,9 +25,9 @@ const SalaBox = () => {
             <FlatList
                 data={data}
                 renderItem={({ item }) => <Item item={item} />}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={item => item.id.toString()}
             />
-      </View>
+        </View>
     );
   };
 

@@ -4,13 +4,15 @@ import CustomText from '../CustomText';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type Sala = {
-  id: string;
-  nombre: string;
-  fecha: string;
-};
-
-const Item = ({ item }: { item: Sala }) => {
+const formatDate =  (fecha) => {
+  const fechaParseada = new Date(fecha);
+  const dia = fechaParseada.getDate();
+  const mes = fechaParseada.getMonth() + 1;
+  const anio = fechaParseada.getFullYear();
+  const fechaFormateada = `${dia < 10 ? '0' + dia : dia}/${mes < 10 ? '0' + mes : mes}/${anio}`;
+  return fechaFormateada;
+}
+const Item = ({ item }) => {
   const navigation = useNavigation();
   const handlePress = async () => {
     try {
@@ -24,10 +26,10 @@ const Item = ({ item }: { item: Sala }) => {
   return (
     <View style={styles.item}>
         <CustomText style={styles.title}>Sala</CustomText>
-        <CustomText style={styles.subtitle}>{item.nombre}</CustomText>
+        <CustomText style={styles.subtitle}>{item.salas.nombre}</CustomText>
         <View style={{padding: 10}}/>
         <CustomText style={styles.title}>Fecha de creación</CustomText>
-        <CustomText style={styles.subtitle}>{item.fecha}</CustomText>
+        <CustomText style={styles.subtitle}>{formatDate(item.salas.fecha)}</CustomText>
         <View style={{padding: 10}}/>
         <TouchableOpacity style = {styles.button} onPress={handlePress}>
           <CustomText style={styles.buttonTitle}>Ver detalle</CustomText>

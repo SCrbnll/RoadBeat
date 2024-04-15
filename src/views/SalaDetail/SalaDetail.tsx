@@ -3,11 +3,20 @@ import { View, Text, StyleSheet } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 
+const formatDate =  (fecha) => {
+    const fechaParseada = new Date(fecha);
+    const dia = fechaParseada.getDate();
+    const mes = fechaParseada.getMonth() + 1;
+    const anio = fechaParseada.getFullYear();
+    const fechaFormateada = `${dia < 10 ? '0' + dia : dia}/${mes < 10 ? '0' + mes : mes}/${anio}`;
+    return fechaFormateada;
+  }
+
 const SalaDetails = () => {
     const [salaNombre, setSalaNombre] = useState("");
-  const [usuarioUsername, setUsuarioUsername] = useState("");
-  const [fechaSala, setFechaSala] = useState("");
-  const [playlist, setPlaylist] = useState("");
+    const [usuarioUsername, setUsuarioUsername] = useState("");
+    const [fechaSala, setFechaSala] = useState("");
+    const [playlist, setPlaylist] = useState("");
   
     useEffect(() => {
         const fetchData = async () => {
@@ -17,7 +26,7 @@ const SalaDetails = () => {
             const jsonData = await response.json();
             setSalaNombre(jsonData.salas.nombre);
             setUsuarioUsername(jsonData.usuarios.username);
-            setFechaSala(jsonData.salas.fecha);
+            setFechaSala(formatDate(jsonData.salas.fecha));
             setPlaylist(jsonData.salas.linkPlaylist);
           } catch (error) {
             console.error("Error al obtener los datos de la sala:", error);
