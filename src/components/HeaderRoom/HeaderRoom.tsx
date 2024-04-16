@@ -5,25 +5,24 @@ import CustomText from "../CustomText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 
-const Header = () => {
+const HeaderRoom = () => {
     const [username, setUsername] = useState('');
 
     useEffect(() => {
-        const chargeUserInfo = async () => {
-            const retrievedUserInfo = await AsyncStorage.getItem('user_info');
-            const parsedUserInfo = JSON.parse(retrievedUserInfo);
-            setUsername(parsedUserInfo.username);
+        const chargeRoomBossInfo = async () => {
+            const salaAnfitrion = await AsyncStorage.getItem("sala_nombre");
+            setUsername(salaAnfitrion);
         }
-        chargeUserInfo();
+        chargeRoomBossInfo();
         }, []);
 
     return (
         <View style={styles.container}>
             <View>
-                <Image source={require('../../assets/images/pfp.png')} style={styles.image} />
+                <Image source={require('../../assets/images/logo.png')} style={styles.image} />
             </View>
             <View>
-                <CustomText style={styles.title}>{username}</CustomText>
+                <CustomText style={styles.title}>Detalle de {username}</CustomText>
             </View>
         </View>
     )
@@ -45,9 +44,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Krona One',
     },
     image: {
-        width: 50,
-        height: 50,
-        borderRadius: 50,
+        width: 35,
+        height: 35,
+        borderRadius: 0,
     }
 });
-export default Header;
+export default HeaderRoom;

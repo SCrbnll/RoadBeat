@@ -17,6 +17,7 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import Header from "../components/Header";
 import SalaDetails from "../views/SalaDetail/SalaDetail";
+import HeaderRoom from "../components/HeaderRoom";
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
@@ -81,7 +82,7 @@ function Navigation() {
                 <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
-                <Stack.Screen name="SalaDetails" component={SalaDetails} options={{headerShown: false,}}/>
+                <Stack.Screen name="SalaDetails" component={SalaDetails} options={{header: () => <HeaderRoom />,}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

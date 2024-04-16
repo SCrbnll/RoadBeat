@@ -36,7 +36,7 @@ const SalaBox = () => {
         flex: 1,
         marginTop: 10,
         paddingBottom: 30,
-        paddingHorizontal: 18
+        paddingHorizontal: 18,
     },
 })
 export default SalaBox;

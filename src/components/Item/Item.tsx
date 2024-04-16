@@ -17,7 +17,9 @@ const Item = ({ item }) => {
   const handlePress = async () => {
     try {
       AsyncStorage.setItem('sala_id', item.id.toString())
+      AsyncStorage.setItem("sala_nombre", item.salas.nombre);
       console.log(item.id);
+      console.log(item.salas.nombre);
       navigation.navigate('SalaDetails' as never);
     } catch (error) {
       console.log("Error al guardar el ID de la sala:", error);
@@ -43,7 +45,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     padding: 20,
     marginVertical: 8,
-    borderRadius: 25
+    borderRadius: 25,
+    paddingBottom: 15
   },
   title: {
     fontSize: 14,

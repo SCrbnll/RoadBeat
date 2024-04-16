@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import CustomText from '../../components/CustomText';
+import { WebView } from 'react-native-webview';
 
 const formatDate =  (fecha) => {
     const fechaParseada = new Date(fecha);
@@ -13,10 +16,10 @@ const formatDate =  (fecha) => {
   }
 
 const SalaDetails = () => {
-    const [salaNombre, setSalaNombre] = useState("");
     const [usuarioUsername, setUsuarioUsername] = useState("");
     const [fechaSala, setFechaSala] = useState("");
     const [playlist, setPlaylist] = useState("");
+    const navigation = useNavigation();
   
     useEffect(() => {
         const fetchData = async () => {
@@ -24,8 +27,8 @@ const SalaDetails = () => {
             const salaId = await AsyncStorage.getItem("sala_id");
             const response = await fetch(`http://10.0.2.2:8080/historial/${salaId}`);
             const jsonData = await response.json();
-            setSalaNombre(jsonData.salas.nombre);
-            setUsuarioUsername(jsonData.usuarios.username);
+            console.log(jsonData)
+            setUsuarioUsername(jsonData.salas.usuarios.username);
             setFechaSala(formatDate(jsonData.salas.fecha));
             setPlaylist(jsonData.salas.linkPlaylist);
           } catch (error) {
@@ -35,35 +38,88 @@ const SalaDetails = () => {
     
         fetchData();
       }, []);
+      const handlePress = () => {
+        navigation.goBack()
+      };
 
-    return (
+      return (
         <View style={styles.container}>
-            <Text style={styles.title}>Nombre de Sala: {salaNombre}</Text>
-            <Text style={styles.title}>Usuario: {usuarioUsername}</Text>
-            <Text style={styles.title}>Fecha de Creación: {fechaSala}</Text>
-            <Text style={styles.title}>Playlist: {playlist}</Text>
+          <View style={{ marginVertical: 20 }} />
+          <CustomText style={styles.title}> Sala creada por </CustomText>
+          <CustomText style={styles.subtitle}> {usuarioUsername} </CustomText>
+          <View style={{ marginVertical: 10 }} />
+          <CustomText style={styles.title}> Fecha de creación </CustomText>
+          <CustomText style={styles.subtitle}> {fechaSala} </CustomText>
+          <View style={{ marginVertical: 20 }} />
+          <View style={styles.textInputLine} />
+          <View style={{ marginVertical: 20 }} />
+          <CustomText style={styles.title}> Playlist de la sala </CustomText>
+          <View style={styles.playlistContainer}>
+            <CustomText style={styles.title}>{playlist} </CustomText>
+          </View>
+          <TouchableOpacity style = {styles.button} onPress={handlePress}>
+            <CustomText style={styles.buttonTitle}>Volver atrás</CustomText>
+          </TouchableOpacity>
+          <View style={{marginVertical: 25}}></View>
         </View>
-    );
+          );
     
 };
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#210000',
     flex: 1,
-    padding: 20,
+    paddingBottom: 30,
+    paddingHorizontal: 18,  
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontSize: 14,
+    color: '#FFFFFF'
   },
-  description: {
-    fontSize: 18,
-    marginBottom: 10,
+  subtitle: {
+    fontSize: 12,
+    color: '#7A7A7A'
   },
-  date: {
-    fontSize: 16,
-    color: '#666',
+  titleTwo:{
+    fontSize: 12,
+    fontFamily: 'Krona One',
+    top: 25,
+    left: 10,
+    color: '#FFFFFF',
+    textAlign:'center',
+  },
+  textInputLine: {
+    borderBottomWidth: 2, 
+    borderBottomColor: '#7A7A7A', 
+    width: '100%',
+    alignSelf: 'center',
+  },
+  button: {
+    backgroundColor: '#580000',
+    padding: 10,
+    color: '#FFFFFF',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    width: 220,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonTitle: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    flex: 1,
+    fontSize: 12
+  },
+  playlistContainer:{
+    backgroundColor: '#000000',
+    padding: 20,
+    marginVertical: 8,
+    borderRadius: 25,
+    paddingBottom: 15
   },
 });
 
