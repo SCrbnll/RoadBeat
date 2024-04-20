@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Linking, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -62,7 +62,7 @@ const SalaDetails = () => {
               <Entypo name="spotify" size={24} color="white" />
               <View style={{ marginHorizontal: 5 }} />
               <CustomText style={styles.subtitle}>RoadBeat te ofrece una playlist personalizada con las canciones reproducidas en la sala para que puedas
-              rememorar el momento              o bien descubrir nuevas canciones </CustomText>
+              rememorar el momento {"\n"}o bien descubrir nuevas canciones </CustomText>
             </View>
             <View style={{ marginVertical: 20 }} />
             <View style={{flexDirection: 'row', marginLeft: 'auto', marginRight: 'auto'}}>

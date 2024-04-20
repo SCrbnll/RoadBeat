@@ -18,6 +18,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import Header from "../components/Header";
 import SalaDetails from "../views/SalaDetail/SalaDetail";
 import HeaderRoom from "../components/HeaderRoom";
+import HeaderProfile from "../components/HeaderProfile";
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
@@ -61,7 +62,7 @@ const BottomTabs = () => {
                 options={{
                     tabBarLabel:"Mi Perfil", 
                     tabBarLabelStyle:{color: "white"},
-                    headerShown: true,
+                    header: () => <HeaderProfile />,
                     tabBarIcon: ({focused}) => 
                     focused ? (
                         <Ionicons name="person" size={24} color="white" />

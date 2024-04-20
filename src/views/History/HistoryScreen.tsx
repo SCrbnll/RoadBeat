@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native"
+import { StyleSheet, View } from "react-native"
 import React from "react"
 import CustomText from "../../components/CustomText"
 import SalaBox from "../../components/SalaBox/SalaBox"
