@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Linking, Text } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import CustomText from '../../components/CustomText';
-import { WebView } from 'react-native-webview';
+
+import { Entypo } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 const formatDate =  (fecha) => {
     const fechaParseada = new Date(fecha);
@@ -52,10 +54,23 @@ const SalaDetails = () => {
           <CustomText style={styles.subtitle}> {fechaSala} </CustomText>
           <View style={{ marginVertical: 20 }} />
           <View style={styles.textInputLine} />
-          <View style={{ marginVertical: 20 }} />
-          <CustomText style={styles.title}> Playlist de la sala </CustomText>
+          <View style={{ marginVertical: 10 }} />
           <View style={styles.playlistContainer}>
-            <CustomText style={styles.title}>{playlist} </CustomText>
+            <CustomText style={styles.title}> ¡Revive tus momentos favoritos o descubre nuevas canciones! </CustomText>
+            <View style={{ marginVertical: 10 }} />
+            <View style={{flexDirection: 'row'}}>
+              <Entypo name="spotify" size={24} color="white" />
+              <View style={{ marginHorizontal: 5 }} />
+              <CustomText style={styles.subtitle}>RoadBeat te ofrece una playlist personalizada con las canciones reproducidas en la sala para que puedas
+              rememorar el momento              o bien descubrir nuevas canciones </CustomText>
+            </View>
+            <View style={{ marginVertical: 20 }} />
+            <View style={{flexDirection: 'row', marginLeft: 'auto', marginRight: 'auto'}}>
+              <TouchableOpacity style = {styles.buttonLink} onPress={() => Linking.openURL(playlist)}>
+                <CustomText style={styles.buttonTitleLink}>Ver playlist</CustomText>
+                <Feather name="external-link" size={20} color="white" style={{marginLeft: 'auto'}}/>
+              </TouchableOpacity>
+            </View>
           </View>
           <TouchableOpacity style = {styles.button} onPress={handlePress}>
             <CustomText style={styles.buttonTitle}>Volver atrás</CustomText>
@@ -112,6 +127,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     flex: 1,
+    fontSize: 12
+  },
+  buttonLink: {
+    flexDirection: 'row',
+    backgroundColor: '#580000',
+    padding: 3,
+    color: '#FFFFFF',
+    marginLeft: 'auto',
+    width: 200,
+    borderRadius: 25,
+  },
+  buttonTitleLink: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    top: 2,
+    left: 50,
     fontSize: 12
   },
   playlistContainer:{
