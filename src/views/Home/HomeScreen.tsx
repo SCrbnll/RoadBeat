@@ -1,6 +1,4 @@
 import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput } from 'react-native';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from '@react-navigation/native';
 import { useState, useEffect, useRef } from 'react';
 
 import Clock from '../../components/Clock';
@@ -9,10 +7,7 @@ import CustomText from '../../components/CustomText';
 import UserNumberInput from '../../components/NumberInput/NumberInput';
 
 const HomeScreen = () => {
-    const nameInputRef = useRef<TextInput>(null);
     const [name, setName] = useState('');
-    const [roomCode, setRoomCode] = useState('');
-    const navigation = useNavigation();
 
     return (
         <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
@@ -25,9 +20,8 @@ const HomeScreen = () => {
                     <CustomText style={styles.title}> Nombre de la Sala </CustomText>
                     <View style={{padding: 15}}></View>
                     <TextInput
-                        ref={nameInputRef}
                         style={styles.textInput}
-                        placeholder="Nombre completo"
+                        placeholder="Nombre de la sala"
                         placeholderTextColor="#7A7A7A"
                         onChangeText={text => setName(text)}
                         value={name}

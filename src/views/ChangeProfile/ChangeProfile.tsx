@@ -1,32 +1,25 @@
 import { StyleSheet, View, TouchableOpacity } from "react-native"
 import React from "react"
-import { useNavigation } from '@react-navigation/native';
 
 import CustomText from "../../components/CustomText"
 import { Feather } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProfileDetail = () => {
-    const navigation = useNavigation();
-
-    const handlePress = (screenName) => {
-        navigation.navigate(screenName as never);
-    };
-
+const ChangeProfile = () => {
     return (
         <View style={styles.container}>
             <CustomText style={styles.title}>Mi perfil</CustomText>
             <View style={{ marginVertical: 15 }} />
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style = {styles.button} onPress={() => handlePress('ProfileDetail')}>
+                <TouchableOpacity style = {styles.button}>
                     <View style={{ marginHorizontal: 3 }} />
                     <Ionicons name="person" size={24} color="white" />
                     <View style={{ marginHorizontal: 5 }} />
                     <CustomText style={styles.buttonTitle}>Editar perfil</CustomText>
                 </TouchableOpacity>
                 <View style={{ marginVertical: 5 }} />
-                <TouchableOpacity style = {styles.button} onPress={() => handlePress('ChangePassword')}>
+                <TouchableOpacity style = {styles.button}>
                     <View style={{ marginHorizontal: 5 }} />
                     <FontAwesome name="unlock-alt" size={24} color="white" />
                     <View style={{ marginHorizontal: 5 }} />
@@ -39,15 +32,13 @@ const ProfileDetail = () => {
                     <View style={{ marginHorizontal: 5 }} />
                     <CustomText style={styles.buttonTitle}>Cerrar sesión</CustomText>
                 </TouchableOpacity>
-                
             </View>
             <CustomText style={styles.subtitle}>Copyright C 2024 RoadBeat. {"\n"}RoadBeat.com v1.0.0</CustomText>
-            
         </View>
     )
 }
 
-export default ProfileDetail
+export default ChangeProfile
 
 const styles = StyleSheet.create({
     container: {
@@ -81,10 +72,10 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignItems: 'center',
         flexDirection: 'row',
-      },
-      buttonTitle: {
+    },
+    buttonTitle: {
         color: '#FFFFFF',
         flex: 1,
         fontSize: 12
-      },
+    },
 })

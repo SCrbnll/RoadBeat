@@ -47,20 +47,24 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 14, 
         color: '#FFFFFF',
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        left: 50
     },
     titleSongs: {
         fontSize: 10, 
         color: '#FFFFFF',
+        left: 50
     },
     subtitle: {
         fontSize: 10,
-        color: '#7A7A7A'
+        color: '#7A7A7A',
+        left: 50
       },
     image: {
         width: 100,
         height: 100,
         borderRadius: 100,
+        left: 50
     }
 });
 export default HeaderProfile;

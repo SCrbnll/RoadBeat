@@ -19,6 +19,11 @@ import Header from "../components/Header";
 import SalaDetails from "../views/SalaDetail/SalaDetail";
 import HeaderRoom from "../components/HeaderRoom";
 import HeaderProfile from "../components/HeaderProfile";
+import HeaderProfileDetail from "../components/HeaderProfileDetail";
+import HeaderPassword from "../components/HeaderPassword";
+import ProfileDetail from "../views/ProfileDetail/ProfileDetail";
+import ChangeProfile from "../views/ChangeProfile";
+
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
@@ -84,6 +89,9 @@ function Navigation() {
                 <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
                 <Stack.Screen name="SalaDetails" component={SalaDetails} options={{header: () => <HeaderRoom />,}}/>
+                <Stack.Screen name="ProfileDetail" component={ProfileDetail} options={{header: () => <HeaderProfileDetail />,}}/>
+                <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderPassword />,}}/>
+
             </Stack.Navigator>
         </NavigationContainer>
     )

@@ -42,11 +42,12 @@ const RegisterScreen = () => {
                         nombre: name,
                         username: username,
                         password: password,
+                        canciones: 0
                     }),
                 });
                 // ID of the new User
                 const idUser = await response.json(); 
-                await AsyncStorage.setItem('user_id', idUser)
+                await AsyncStorage.setItem('user_id', idUser.toString())
                 console.log(idUser) 
     
                 // Save the new User into user_info
