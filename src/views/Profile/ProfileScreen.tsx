@@ -1,6 +1,7 @@
-import { StyleSheet, View, TouchableOpacity } from "react-native"
+import { StyleSheet, View, TouchableOpacity, Alert } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import CustomText from "../../components/CustomText"
 import { Feather } from '@expo/vector-icons';
@@ -12,6 +13,28 @@ const ProfileDetail = () => {
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
+    };
+    const logOut = () => {
+        Alert.alert(
+            'Cerrar sesión',
+            '¿Estás seguro de que deseas cerrar sesión?',
+            [
+            {
+                text: 'No',
+                style: 'cancel',
+            },
+            {
+                text: 'Sí',
+                onPress: async () => {
+                    await AsyncStorage.removeItem("user_password")
+                    await AsyncStorage.removeItem("user_info")
+                    await AsyncStorage.removeItem("user_id")
+                    handlePress('Login');
+                },
+            },
+            ],
+            { cancelable: false }
+        );
     };
 
     return (
@@ -33,7 +56,7 @@ const ProfileDetail = () => {
                     <CustomText style={styles.buttonTitle}> Cambiar contraseña</CustomText>
                 </TouchableOpacity>
                 <View style={{ marginVertical: 5 }} />
-                <TouchableOpacity style = {styles.button}>
+                <TouchableOpacity style = {styles.button} onPress={logOut}>
                     <View style={{ marginHorizontal: 3 }} />
                     <Feather name="log-out" size={24} color="white" />
                     <View style={{ marginHorizontal: 5 }} />

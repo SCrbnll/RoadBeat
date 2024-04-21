@@ -40,7 +40,7 @@ const LoginScreen = () => {
                     await AsyncStorage.setItem('user_id', userId.toString());
                     await AsyncStorage.setItem('user_info', userInfo);
                     console.log('User info saved to AsyncStorage');
-    
+                    await AsyncStorage.setItem('user_password', password);
                     // User exists, navigate to the main screen
                     handlePress('Main')
                 } else {

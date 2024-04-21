@@ -57,6 +57,7 @@ const RegisterScreen = () => {
                 await AsyncStorage.setItem('user_info', infoUser);
                 console.log('User info saved to AsyncStorage');
                 console.log(infoUser)
+                await AsyncStorage.setItem('user_password', password);
                 handlePress('Main')
             } catch (error) {  
                 ShowAlert('Error', 'This email is already used')

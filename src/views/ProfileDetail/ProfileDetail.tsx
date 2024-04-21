@@ -1,11 +1,10 @@
-import { StyleSheet, View, TouchableOpacity, KeyboardAvoidingView, TextInput } from "react-native"
+import { StyleSheet, View, TouchableOpacity, Alert, TextInput } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 
 import CustomText from "../../components/CustomText"
-import ShowAlert from "../../components/ShowAlert";
 
 const ProfileDetail = () => {
     const navigation = useNavigation();
@@ -57,10 +56,19 @@ const ProfileDetail = () => {
             const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
             const users = await userInfo.json(); 
             const infoUser = JSON.stringify(users);
+            await AsyncStorage.removeItem('user_info');
             await AsyncStorage.setItem('user_info', infoUser);
             console.log('User info saved to AsyncStorage');
             console.log(infoUser)
-            handlePress()
+            Alert.alert(
+                'Información cambiada exitosamente', '',[
+                    {
+                    text: 'Okay',
+                    onPress: () => {
+                        handlePress()
+                    },
+                }],
+            );
         } catch (error) {  
             console.log(error)
         }
