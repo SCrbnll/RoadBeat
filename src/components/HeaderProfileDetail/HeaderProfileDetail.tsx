@@ -1,11 +1,20 @@
 import React from "react";
-import {View, Image, StyleSheet} from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Constants from 'expo-constants'
+import { Entypo } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ImagePicker from 'react-native-image-picker';
+import { useState, useEffect } from 'react';
 
 const HeaderProfileDetail = () => {
+    const [profileImage, setProfileImage] = useState(null);
+
     return (
         <View style={styles.container}>
             <Image source={require('../../assets/images/pfp.png')} style={styles.image} />
+            <TouchableOpacity style={styles.cameraButton}>
+                <Entypo name="camera" size={20} color="white" style={{left: 8, top: 5}} />
+            </TouchableOpacity>
         </View>
     )
 };
@@ -19,25 +28,22 @@ const styles = StyleSheet.create({
         backgroundColor: '#180000',
         height: 180
     },
-    title: {
-        fontSize: 14, 
-        color: '#FFFFFF',
-        paddingHorizontal: 20
+    cameraButton: {
+        height: 35,
+        width: 35,
+        backgroundColor: '#580000',
+        borderRadius: 50,
+        left: -150,
+        top: 45
     },
-    titleSongs: {
-        fontSize: 10, 
-        color: '#FFFFFF',
-    },
-    subtitle: {
-        fontSize: 10,
-        color: '#7A7A7A'
-      },
     image: {
         width: 100,
         height: 100,
+        left: 10,
         borderRadius: 100,
         marginLeft: 'auto',
         marginRight: 'auto'
     }
 });
+
 export default HeaderProfileDetail;
