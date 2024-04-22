@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Item from "../Item";
 
 
-const SalaBox = () => {
+const RoomBox = () => {
     const [data, setData] = useState();
   
     useEffect(() => {
@@ -39,6 +39,6 @@ const SalaBox = () => {
         paddingHorizontal: 18,
     },
 })
-export default SalaBox;
+export default RoomBox;
 
 

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native"
 import React from "react"
 import CustomText from "../../components/CustomText"
-import SalaBox from "../../components/SalaBox/SalaBox"
+import SalaBox from "../../components/RoomBox/RoomBox"
 
 const HistoryScreen = () => {
     return (

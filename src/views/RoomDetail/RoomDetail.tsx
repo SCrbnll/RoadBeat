@@ -17,7 +17,7 @@ const formatDate =  (fecha) => {
     return fechaFormateada;
   }
 
-const SalaDetails = () => {
+const RoomDetail = () => {
     const [usuarioUsername, setUsuarioUsername] = useState("");
     const [fechaSala, setFechaSala] = useState("");
     const [playlist, setPlaylist] = useState("");
@@ -154,4 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SalaDetails;
+export default RoomDetail;

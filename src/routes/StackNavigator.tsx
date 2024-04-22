@@ -16,7 +16,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 
 import Header from "../components/Header";
-import SalaDetails from "../views/SalaDetail/SalaDetail";
+import SalaDetails from "../views/RoomDetail/RoomDetail";
 import HeaderRoom from "../components/HeaderRoom";
 import HeaderProfile from "../components/HeaderProfile";
 import HeaderProfileDetail from "../components/HeaderProfileDetail";
