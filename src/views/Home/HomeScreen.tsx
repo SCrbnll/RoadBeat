@@ -11,6 +11,7 @@ import ShowAlert from "../../components/ShowAlert";
 const HomeScreen = () => {
     const [name, setName] = useState('');
     const [cod, setCod] = useState('');
+    const [joinCod, setJoinCod] = useState('');
 
     const currentDate = () => {
         const currentDate = new Date();
@@ -113,6 +114,42 @@ const HomeScreen = () => {
         }
     }
 
+    const joinRoom = async () => {
+        if(joinCod.length === 0) {
+            ShowAlert('Error', 'Debes insertar el código de la sala')
+        } else {
+            const roomJson = await fetch('http://10.0.2.2:8080/codigosSalas/codigo/' + joinCod);
+            const room = await roomJson.json(); 
+            console.log(room.salas)
+            const userInfoJson = await AsyncStorage.getItem("user_info");
+            const userInfo = JSON.parse(userInfoJson);
+            console.log(userInfo)
+            const response = await fetch('http://10.0.2.2:8080/historial', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    salas: room.salas,
+                    usuarios: userInfo
+                }),
+            });
+            const idHistorial = await response.json(); 
+            console.log(idHistorial)
+            console.log('Unión completada')
+            Alert.alert(
+                'Uniendote a la sala', ' ',[
+                    {
+                    text: 'Okay',
+                    onPress: async () => {
+                    
+                    },
+                }],
+            );   
+        }   
+    }
+
     return (
         <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
             <View style={styles.container}>
@@ -142,9 +179,17 @@ const HomeScreen = () => {
                 <View style = {styles.contentBox}>
                     <CustomText style={styles.titleTwo}> Escribe el código de la sala {"\n"}que deseas unirte </CustomText>
                     <View style={{padding: 15}}></View>
-                    <UserNumberInput />
+                    <View style={styles.numberContainer}>
+                        <TextInput
+                            style={styles.input}
+                            maxLength={3}
+                            onChangeText={text => setJoinCod(text)}
+                            keyboardType="number-pad"
+                            value={joinCod}
+                        />
+                    </View>
                     <View style={{padding: 15}}></View>
-                    <TouchableOpacity style = {styles.button} onPress={generateRandomNumber}>
+                    <TouchableOpacity style = {styles.button} onPress={joinRoom}>
                         <CustomText style={styles.buttonTitle}>Unirse a la sala</CustomText>
                     </TouchableOpacity>
                 </View>
@@ -213,15 +258,22 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     input: {
-        width: 40,
+        width: 140,
         height: 40,
         borderWidth: 3,
         borderColor: 'white',
         borderRadius: 12,
         textAlign: 'center',
-        fontSize: 14,
-        fontFamily: 'Wave',
+        fontSize: 16,
+        left: 5,
+        color: '#FFFFFF'
       },
+    numberContainer:{
+        top: 12,
+        left: 50,
+        flexDirection: 'row',
+        alignContent: 'center',
+    }
 });
 
 export default HomeScreen
