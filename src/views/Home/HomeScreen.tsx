@@ -5,12 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Clock from '../../components/Clock';
 import Line from '../../components/Line';
 import CustomText from '../../components/CustomText';
-import UserNumberInput from '../../components/NumberInput/NumberInput';
 import ShowAlert from "../../components/ShowAlert";
 
 const HomeScreen = () => {
     const [name, setName] = useState('');
-    const [cod, setCod] = useState('');
     const [joinCod, setJoinCod] = useState('');
 
     const currentDate = () => {
@@ -24,29 +22,27 @@ const HomeScreen = () => {
     }
     const generateRandomNumber = async () => {
         let randomNumber;
-        let found = false;
         const response = await fetch('http://10.0.2.2:8080/codigosSalas/salas');
         const jsonData = await response.json();
         const codSalas = [];
         jsonData.map(item => {
             codSalas.push(item.codSala);
         });
-        console.log(codSalas)
-        do {
-            found = false;
+        if (codSalas.length === 0) {
             randomNumber = Math.floor(Math.random() * 900) + 100;
-
-            for (let i = 0; i < codSalas.length; i++) {
-                if (codSalas[i] === randomNumber) {
-                    found = true;
-                    break;
-                }
+        } else if (codSalas.length === 1) {
+            randomNumber = Math.floor(Math.random() * 900) + 100;
+            while (codSalas.includes(randomNumber)) {
+                randomNumber = Math.floor(Math.random() * 900) + 100;
             }
-
-        } while (found);
-        setCod(randomNumber)  
-        console.log('Generated code: ' + cod)   
-      }
+        } else {
+            do {
+                randomNumber = Math.floor(Math.random() * 900) + 100;
+            } while (codSalas.includes(randomNumber));
+        }
+    
+        return randomNumber.toString();
+    }
 
     const createRoom = async () => {
         if(name.length === 0) {
@@ -78,7 +74,6 @@ const HomeScreen = () => {
                 const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
                 const room = await roomJson.json(); 
                 console.log(room)      
-                await generateRandomNumber()
 
                 if(idSala){
                     // Register the Code of the Room
@@ -90,7 +85,7 @@ const HomeScreen = () => {
                         },
                         body: JSON.stringify({
                             cerrada: false,
-                            codSala: cod,
+                            codSala: await generateRandomNumber(),
                             salas: room
                         }),
                     });
@@ -107,7 +102,6 @@ const HomeScreen = () => {
                         }],
                     );    
                 }   
-                
             } catch (error) {  
                 console.log(error)
             }
@@ -119,34 +113,48 @@ const HomeScreen = () => {
             ShowAlert('Error', 'Debes insertar el código de la sala')
         } else {
             const roomJson = await fetch('http://10.0.2.2:8080/codigosSalas/codigo/' + joinCod);
-            const room = await roomJson.json(); 
-            console.log(room.salas)
-            const userInfoJson = await AsyncStorage.getItem("user_info");
-            const userInfo = JSON.parse(userInfoJson);
-            console.log(userInfo)
-            const response = await fetch('http://10.0.2.2:8080/historial', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    salas: room.salas,
-                    usuarios: userInfo
-                }),
-            });
-            const idHistorial = await response.json(); 
-            console.log(idHistorial)
-            console.log('Unión completada')
-            Alert.alert(
-                'Uniendote a la sala', ' ',[
-                    {
-                    text: 'Okay',
-                    onPress: async () => {
+            if(roomJson.ok){
+                try{
+                    const room = await roomJson.json(); 
+                
+                    console.log(room)
+                    console.log(room.salas)
+                    const userInfoJson = await AsyncStorage.getItem('user_info')
+                    const userInfo = JSON.parse(userInfoJson);
+
+                    try{
+                        const existJson = await fetch('http://10.0.2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
+                        const exist = await existJson.json();
+                        console.log('Navegar a la otra vista')
+                    } catch (error) {
+                        const response = await fetch('http://10.0.2.2:8080/historial', {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                salas: room.salas,
+                                usuarios: userInfo
+                            }),
+                        });
+                        const idHistorial = await response.json(); 
+                        console.log(idHistorial)
+                        console.log('Unión completada')
+                        Alert.alert(
+                            'Uniendote a la sala', ' ',[
+                                {
+                                text: 'Okay',
+                                onPress: async () => {
                     
-                    },
-                }],
-            );   
+                                },
+                            }],
+                        ); 
+                    }
+                } catch (error) {
+                    ShowAlert('Error', 'El códido de la sala no es válido')
+                }
+            } 
         }   
     }
 
