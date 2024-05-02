@@ -31,7 +31,7 @@ const RegisterScreen = () => {
         } else {
             try {
                 // Register the User
-                const response = await fetch('http://10.0.2.2:8080/usuarios', {
+                const response = await fetch('http://20.199.42.13:8080/usuarios', {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -42,7 +42,8 @@ const RegisterScreen = () => {
                         nombre: name,
                         username: username,
                         password: password,
-                        canciones: 0
+                        canciones: 0,
+                        foto: 'pfp'
                     }),
                 });
                 // ID of the new User
@@ -51,10 +52,11 @@ const RegisterScreen = () => {
                 console.log(idUser) 
     
                 // Save the new User into user_info
-                const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ idUser);
+                const userInfo = await fetch('http://20.199.42.13:8080/usuarios/'+ idUser);
                 const users = await userInfo.json(); 
                 const infoUser = JSON.stringify(users);
                 await AsyncStorage.setItem('user_info', infoUser);
+                await AsyncStorage.setItem('profileImage', users.foto)
                 console.log('User info saved to AsyncStorage');
                 console.log(infoUser)
                 await AsyncStorage.setItem('user_password', password);

@@ -89,7 +89,7 @@ function Navigation() {
                 <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false,}}/>  
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
                 <Stack.Screen name="SalaDetails" component={SalaDetails} options={{header: () => <HeaderRoom />,}}/>
-                <Stack.Screen name="ProfileDetail" component={ProfileDetail} options={{header: () => <HeaderProfileDetail />,}}/>
+                <Stack.Screen name="ProfileDetail" component={ProfileDetail} options={{headerShown: false,}}/>
                 <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderPassword />,}}/>
 
             </Stack.Navigator>

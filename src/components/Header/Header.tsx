@@ -7,12 +7,18 @@ import { useState, useEffect } from 'react';
 
 const Header = () => {
     const [username, setUsername] = useState('');
+    const [pfp, setPfp] = useState('');
 
     useEffect(() => {
         const chargeUserInfo = async () => {
             const retrievedUserInfo = await AsyncStorage.getItem('user_info');
             const parsedUserInfo = JSON.parse(retrievedUserInfo);
             setUsername(parsedUserInfo.username);
+            if(parsedUserInfo.foto == 'pfp'){
+                setPfp('')
+            } else {
+                setPfp(parsedUserInfo.foto)
+            }
         }
         chargeUserInfo();
         }, []);
@@ -20,7 +26,7 @@ const Header = () => {
     return (
         <View style={styles.container}>
             <View>
-                <Image source={require('../../assets/images/pfp.png')} style={styles.image} />
+                <Image source={pfp ? { uri: pfp } : require('../../assets/images/pfp.png')} style={styles.image} />
             </View>
             <View>
                 <CustomText style={styles.title}>{username}</CustomText>

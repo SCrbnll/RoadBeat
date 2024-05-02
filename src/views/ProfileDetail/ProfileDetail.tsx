@@ -1,8 +1,11 @@
-import { StyleSheet, View, TouchableOpacity, Alert, TextInput } from "react-native"
+import { StyleSheet, View, TouchableOpacity, Alert, TextInput, Image } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
+import Constants from 'expo-constants'
+import { Entypo } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 import CustomText from "../../components/CustomText"
 
@@ -14,6 +17,8 @@ const ProfileDetail = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [canciones, setCanciones] = useState('');
+    const [pfp, setPfp] = useState('');
+    
 
 
     useEffect(() => {
@@ -26,6 +31,11 @@ const ProfileDetail = () => {
             setEmail(userInfo.email)
             setPassword(userInfo.password)
             setCanciones(userInfo.canciones)
+            if(userInfo.foto == 'pfp'){
+                setPfp('')
+            } else {
+                setPfp(userInfo.foto)
+            }
         }
         chargeRoomBossInfo();
         }, []);
@@ -33,10 +43,23 @@ const ProfileDetail = () => {
     const handlePress = () => {
         navigation.goBack()
     };
+    const handleChooseProfileImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        
+        if (permissionResult.granted === false) {
+          alert('Permission to access camera roll is required!');
+          return;
+        }
+    
+        const pickerResult = await ImagePicker.launchImageLibraryAsync();
+    
+        if (!pickerResult.canceled) {
+            setPfp(pickerResult.assets[0].uri);
+        }
+      };
     const changeInfo = async () => {
         try {
-            // Register the User
-            const response = await fetch('http://10.0.2.2:8080/usuarios/changeprofile', {
+            const response = await fetch('http://20.199.42.13:8080/usuarios/changeprofile', {
                 method: 'PUT',
                 headers: {
                     Accept: 'application/json',
@@ -48,12 +71,13 @@ const ProfileDetail = () => {
                     nombre: name,
                     username: username,
                     password: password,
-                    canciones: canciones
+                    canciones: canciones,
+                    foto: pfp
                 }),
             });
     
             // Save the new User into user_info
-            const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
+            const userInfo = await fetch('http://20.199.42.13:8080/usuarios/'+ id);
             const users = await userInfo.json(); 
             const infoUser = JSON.stringify(users);
             await AsyncStorage.removeItem('user_info');
@@ -76,33 +100,39 @@ const ProfileDetail = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.photoContainer}>
+                <Image source={pfp === '' ? require('../../assets/images/pfp.png') : { uri: pfp }} style={styles.image}/>
+                <TouchableOpacity style={styles.cameraButton} onPress={handleChooseProfileImage}>
+                    <Entypo name="camera" size={20} color="white" style={{left: 8, top: 5}} />
+                </TouchableOpacity>
+            </View>
             <View style={{padding: 10}} />
             <View style = {styles.contentBox}>
-            <CustomText style={styles.title}> Nombre</CustomText>
-            <View style={{padding: 15}}></View>
-            <TextInput
-                style={styles.textInput}
-                onChangeText={text => setName(text)}
-                value={name}
-            />
-            <View style={styles.textInputLine} />
-            <CustomText style={styles.title}> Nombre de usuario</CustomText>
-            <View style={{padding: 15}}></View>
-            <TextInput
-                style={styles.textInput}
-                onChangeText={text => setUsername(text)}
-                value={username}
-            />
-            <View style={styles.textInputLine} />
-            <CustomText style={styles.title}> Correo electrónico</CustomText>
-            <View style={{padding: 15}}></View>
-            <TextInput
-                style={styles.textInput}
-                onChangeText={text => setEmail(text)}
-                value={email}
-            />
-            <View style={styles.textInputLine} />
-            <View style={{padding: 15}}></View>
+                <CustomText style={styles.title}> Nombre</CustomText>
+                <View style={{padding: 15}}></View>
+                <TextInput
+                    style={styles.textInput}
+                    onChangeText={text => setName(text)}
+                    value={name}
+                />
+                <View style={styles.textInputLine} />
+                <CustomText style={styles.title}> Nombre de usuario</CustomText>
+                <View style={{padding: 15}}></View>
+                <TextInput
+                    style={styles.textInput}
+                    onChangeText={text => setUsername(text)}
+                    value={username}
+                />
+                <View style={styles.textInputLine} />
+                <CustomText style={styles.title}> Correo electrónico</CustomText>
+                <View style={{padding: 15}}></View>
+                <TextInput
+                    style={styles.textInput}
+                    onChangeText={text => setEmail(text)}
+                    value={email}
+                />
+                <View style={styles.textInputLine} />
+                <View style={{padding: 15}}></View>
                 <TouchableOpacity style = {styles.button} onPress={changeInfo}>
                     <CustomText style={styles.buttonTitle}>Guardar cambios</CustomText>
                 </TouchableOpacity>
@@ -167,5 +197,30 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         flex: 1,
         fontSize: 12
+    },
+    cameraButton: {
+        height: 35,
+        width: 35,
+        backgroundColor: '#580000',
+        borderRadius: 50,
+        left: -150,
+        top: 45
+    },
+    image: {
+        width: 100,
+        height: 100,
+        left: 10,
+        borderRadius: 100,
+        marginLeft: 'auto',
+        marginRight: 'auto'
+    },
+    photoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: 400,
+        paddingTop: Constants.statusBarHeight,
+        paddingHorizontal: 'auto',
+        backgroundColor: '#180000',
+        flex: 1,
     },
 });

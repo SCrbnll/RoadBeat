@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 const HeaderProfile = () => {
     const [username, setUsername] = useState('');
     const [canciones, setCanciones] = useState('');
+    const [pfp, setPfp] = useState('')
 
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
@@ -15,6 +16,11 @@ const HeaderProfile = () => {
             const userInfo = JSON.parse(userInfoJson);
             setUsername(userInfo.username)
             setCanciones(userInfo.canciones)
+            if(userInfo.foto == 'pfp'){
+                setPfp('')
+            } else {
+                setPfp(userInfo.foto)
+            }
         }
         chargeRoomBossInfo();
         }, []);
@@ -22,7 +28,7 @@ const HeaderProfile = () => {
     return (
         <View style={styles.container}>
             <View>
-                <Image source={require('../../assets/images/pfp.png')} style={styles.image} />
+                <Image source={pfp === '' ? require('../../assets/images/pfp.png') : { uri: pfp }} style={styles.image}/>
             </View>
             <View>
                 <CustomText style={styles.title}>{username}</CustomText>

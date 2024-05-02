@@ -10,7 +10,6 @@ import CustomText from '../../components/CustomText';
 import ShowAlert from '../../components/ShowAlert';
 import Line from '../../components/Line';
 
-
 const LoginScreen = () => {
     const emailInputRef = useRef<TextInput>(null);
     const passwordInputRef = useRef<TextInput>(null);
@@ -28,7 +27,7 @@ const LoginScreen = () => {
             ShowAlert('Error', 'Debes rellenar todos los campos')
         } else {
             try {
-                const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
+                const response = await fetch('http://20.199.42.13:8080/usuarios/login/' + email + '/' + password);
                 // Parse the JSON response
                 const users = await response.json(); 
                 console.log(users)      
@@ -39,10 +38,11 @@ const LoginScreen = () => {
                     const userId = users.id;
                     await AsyncStorage.setItem('user_id', userId.toString());
                     await AsyncStorage.setItem('user_info', userInfo);
+                    await AsyncStorage.setItem('profileImage', users.foto)
                     console.log('User info saved to AsyncStorage');
                     await AsyncStorage.setItem('user_password', password);
                     // User exists, navigate to the main screen
-                    handlePress('Main')
+                    handlePress('Main');
                 } else {
                     // User does not exist, show an error message
                     ShowAlert('Error', 'Credenciales incorrectas');
