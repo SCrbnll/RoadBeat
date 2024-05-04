@@ -6,12 +6,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 
 const HeaderRoomScreen = () => {
-    const [username, setUsername] = useState('');
+    const [name, setName] = useState('');
+    const [anfitrion, setAnfitrion] = useState('');
 
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
-            const salaAnfitrion = await AsyncStorage.getItem("sala_nombre");
-            setUsername(salaAnfitrion);
+            const idSala = await AsyncStorage.getItem('room_id')
+            const roomJson = await fetch('http://20.199.42.13:8080/salas/' + idSala);
+            const room = await roomJson.json(); 
+            console.log(room)
+            setName(room.nombre);
+            setAnfitrion(room.usuarios.username)
         }
         chargeRoomBossInfo();
         }, []);
@@ -22,7 +27,9 @@ const HeaderRoomScreen = () => {
                 <Image source={require('../../assets/images/logo.png')} style={styles.image} />
             </View>
             <View style={styles.titleContainer}>
-                <CustomText style={styles.title}>Detalle de {username}</CustomText>
+                <CustomText style={styles.title}>{name}</CustomText>
+                <View style={{paddingVertical: 2}}></View>
+                <CustomText style={styles.subtitle}>Anfitrión : {anfitrion}</CustomText>
             </View>
         </View>
     )
@@ -43,6 +50,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         fontFamily: 'Krona One',
     },
+    subtitle:{
+        color: '#7A7A7A',
+        fontSize: 10, 
+        paddingHorizontal: 20,
+    },
     image: {
         width: 35,
         height: 35,
@@ -50,8 +62,6 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         flexDirection: 'column',
-        alignItems: 'center',
-        paddingTop: Constants.statusBarHeight,
     }
 });
 export default HeaderRoomScreen;

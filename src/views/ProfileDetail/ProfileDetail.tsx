@@ -101,7 +101,7 @@ const ProfileDetail = () => {
     return (
         <View style={styles.container}>
             <View style={styles.photoContainer}>
-                <Image source={pfp === '' ? require('../../assets/images/pfp.png') : { uri: pfp }} style={styles.image}/>
+                <Image source={pfp === '' ? require('../../assets/images/pfp.png') : { uri: pfp }} style={styles.image} />
                 <TouchableOpacity style={styles.cameraButton} onPress={handleChooseProfileImage}>
                     <Entypo name="camera" size={20} color="white" style={{left: 8, top: 5}} />
                 </TouchableOpacity>

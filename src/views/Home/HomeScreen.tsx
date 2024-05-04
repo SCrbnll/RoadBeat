@@ -1,6 +1,7 @@
 import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from '@react-navigation/native';
 
 import Clock from '../../components/Clock';
 import Line from '../../components/Line';
@@ -10,16 +11,20 @@ import ShowAlert from "../../components/ShowAlert";
 const HomeScreen = () => {
     const [name, setName] = useState('');
     const [joinCod, setJoinCod] = useState('');
+    const navigation = useNavigation();
 
     const currentDate = () => {
         const currentDate = new Date();
         const year = currentDate.getFullYear();
         const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-        const day = currentDate.getDate();
+        const day = (currentDate.getDay() + 1).toString().padStart(2, '0')
         console.log(`${year}-${month}-${day}`)
 
         return(`${year}-${month}-${day}`);
     }
+    const handlePress = (screenName) => {
+        navigation.navigate(screenName as never);
+    };
     const generateRandomNumber = async () => {
         let randomNumber;
         const response = await fetch('http://20.199.42.13:8080/codigosSalas/salas');
@@ -90,14 +95,15 @@ const HomeScreen = () => {
                         }),
                     });
                     const codSala = await response.json(); 
-                    console.log(codSala) 
+                    console.log(codSala)
+                    await AsyncStorage.setItem('room_code', codSala.toString()) 
                     console.log('Sala creada');
                     Alert.alert(
                         'Sala creada exitosamente', ' ',[
                             {
                             text: 'Okay',
                             onPress: async () => {
-                            
+                                handlePress("RoomScreenAdmin")
                             },
                         }],
                     );    
@@ -146,7 +152,7 @@ const HomeScreen = () => {
                                 {
                                 text: 'Okay',
                                 onPress: async () => {
-                    
+                                    
                                 },
                             }],
                         ); 

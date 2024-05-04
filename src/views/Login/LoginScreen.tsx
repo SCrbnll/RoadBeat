@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import { useState, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import SpotifyAPI from '../../types/SpotifyData';
 
 import CustomText from '../../components/CustomText';
 import ShowAlert from '../../components/ShowAlert';
@@ -42,6 +43,14 @@ const LoginScreen = () => {
                     console.log('User info saved to AsyncStorage');
                     await AsyncStorage.setItem('user_password', password);
                     // User exists, navigate to the main screen
+                    await SpotifyAPI.getToken()
+                    .then(token => {
+                        console.log(token);
+                        AsyncStorage.setItem("token", token)
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
                     handlePress('Main');
                 } else {
                     // User does not exist, show an error message

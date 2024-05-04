@@ -19,10 +19,11 @@ import Header from "../components/Header";
 import SalaDetails from "../views/RoomDetail/RoomDetail";
 import HeaderRoom from "../components/HeaderRoom";
 import HeaderProfile from "../components/HeaderProfile";
-import HeaderProfileDetail from "../components/HeaderProfileDetail";
 import HeaderPassword from "../components/HeaderPassword";
 import ProfileDetail from "../views/ProfileDetail/ProfileDetail";
 import ChangeProfile from "../views/ChangeProfile";
+import RoomScreenAdmin from "../views/RoomScreenAdmin";
+import HeaderRoomScreen from "../components/HeaderRoomScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -91,6 +92,7 @@ function Navigation() {
                 <Stack.Screen name="SalaDetails" component={SalaDetails} options={{header: () => <HeaderRoom />,}}/>
                 <Stack.Screen name="ProfileDetail" component={ProfileDetail} options={{headerShown: false,}}/>
                 <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderPassword />,}}/>
+                <Stack.Screen name="RoomScreenAdmin" component={RoomScreenAdmin} options={{header: () => <HeaderRoomScreen />,}}/>
 
             </Stack.Navigator>
         </NavigationContainer>
