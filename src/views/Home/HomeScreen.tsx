@@ -1,5 +1,5 @@
 import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from '@react-navigation/native';
 
@@ -56,7 +56,6 @@ const HomeScreen = () => {
             try {
                 const userInfoJson = await AsyncStorage.getItem('user_info')
                 const userInfo = JSON.parse(userInfoJson);
-                console.log(userInfo)
                 // Register the Room
                 const response = await fetch('http://10.0.2.2:8080/salas', {
                     method: 'POST',
@@ -74,11 +73,8 @@ const HomeScreen = () => {
                 // ID of the new Room
                 const idSala = await response.json(); 
                 await AsyncStorage.setItem('room_id', idSala.toString())
-                console.log(idSala) 
-
                 const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
-                const room = await roomJson.json(); 
-                console.log(room)      
+                const room = await roomJson.json();     
 
                 if(idSala){
                     // Register the Code of the Room
@@ -95,7 +91,6 @@ const HomeScreen = () => {
                         }),
                     });
                     const codSala = await response.json(); 
-                    console.log(codSala)
                     await AsyncStorage.setItem('room_code', codSala.toString()) 
                     const responseHistorial = await fetch('http://10.0.2.2:8080/historial', {
                             method: 'POST',
@@ -108,9 +103,7 @@ const HomeScreen = () => {
                                 usuarios: userInfo
                             }),
                         });
-                        const idHistorial = await responseHistorial.json(); 
-                        console.log(idHistorial)
-                    console.log('Sala creada');
+                    const idHistorial = await responseHistorial.json(); 
                     Alert.alert(
                         'Sala creada exitosamente', ' ',[
                             {

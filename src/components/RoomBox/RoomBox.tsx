@@ -1,25 +1,9 @@
 import React from "react";
 import {View, StyleSheet,FlatList} from 'react-native';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState, useEffect } from 'react';
 import Item from "../Item";
 
 
-const RoomBox = () => {
-    const [data, setData] = useState();
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        const userId = await AsyncStorage.getItem('user_id');
-        const response = await fetch(`http://10.0.2.2:8080/historial/salasUsuario/${userId}`);
-        const jsonData = await response.json();
-        setData(jsonData);
-        console.log(jsonData)
-      };
-  
-      fetchData();
-    }, []);
-  
+const RoomBox = ({data}) => {
     return (
         <View style={styles.container}>
             <FlatList

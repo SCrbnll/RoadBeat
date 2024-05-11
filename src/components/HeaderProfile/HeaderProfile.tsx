@@ -4,26 +4,29 @@ import Constants from 'expo-constants'
 import CustomText from "../CustomText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HeaderProfile = () => {
     const [username, setUsername] = useState('');
     const [canciones, setCanciones] = useState('');
     const [pfp, setPfp] = useState('')
 
-    useEffect(() => {
-        const chargeRoomBossInfo = async () => {
-            const userInfoJson = await AsyncStorage.getItem("user_info");
-            const userInfo = JSON.parse(userInfoJson);
-            setUsername(userInfo.username)
-            setCanciones(userInfo.canciones)
-            if(userInfo.foto == 'pfp'){
-                setPfp('')
-            } else {
-                setPfp(userInfo.foto)
+    useFocusEffect(
+        React.useCallback(() => {
+            const chargeRoomBossInfo = async () => {
+                const userInfoJson = await AsyncStorage.getItem("user_info");
+                const userInfo = JSON.parse(userInfoJson);
+                setUsername(userInfo.username)
+                setCanciones(userInfo.canciones)
+                if(userInfo.foto == 'pfp'){
+                    setPfp('')
+                } else {
+                    setPfp(userInfo.foto)
+                }
             }
-        }
         chargeRoomBossInfo();
-        }, []);
+        }, [])
+    );
 
     return (
         <View style={styles.container}>

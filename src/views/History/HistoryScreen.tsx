@@ -1,15 +1,34 @@
 import { StyleSheet, View } from "react-native"
 import React from "react"
+import { useState, useEffect } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomText from "../../components/CustomText"
 import SalaBox from "../../components/RoomBox/RoomBox"
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const HistoryScreen = () => {
+  const [data, setData] = useState();
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        const userId = await AsyncStorage.getItem('user_id');
+        const response = await fetch(`http://10.0.2.2:8080/historial/salasUsuario/${userId}`);
+        const jsonData = await response.json();
+        setData(jsonData);
+        console.log(jsonData);
+      };
+
+      fetchData();
+    }, [])
+  );
     return (
       <View style={styles.container}>
         <CustomText style={styles.title}>Historial</CustomText>
         <View style={{ marginVertical: 20 }} />
         <View style={styles.textInputLine} />
-        <SalaBox />
+        <SalaBox data={data}/>
       </View>
     );
   };

@@ -3,25 +3,29 @@ import {View, Image, StyleSheet} from 'react-native';
 import Constants from 'expo-constants'
 import CustomText from "../CustomText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useFocusEffect } from "@react-navigation/native";
 
 const Header = () => {
     const [username, setUsername] = useState('');
     const [pfp, setPfp] = useState('');
 
-    useEffect(() => {
-        const chargeUserInfo = async () => {
-            const retrievedUserInfo = await AsyncStorage.getItem('user_info');
-            const parsedUserInfo = JSON.parse(retrievedUserInfo);
-            setUsername(parsedUserInfo.username);
-            if(parsedUserInfo.foto == 'pfp'){
-                setPfp('')
-            } else {
-                setPfp(parsedUserInfo.foto)
+    useFocusEffect(
+        React.useCallback(() => {
+            const chargeUserInfo = async () => {
+                const retrievedUserInfo = await AsyncStorage.getItem('user_info');
+                const parsedUserInfo = JSON.parse(retrievedUserInfo);
+                setUsername(parsedUserInfo.username);
+                if(parsedUserInfo.foto == 'pfp'){
+                    setPfp('')
+                } else {
+                    setPfp(parsedUserInfo.foto)
+                }
             }
-        }
-        chargeUserInfo();
-        }, []);
+            chargeUserInfo();
+        }, [])
+    );
+    
 
     return (
         <View style={styles.container}>
