@@ -11,7 +11,7 @@ const RoomBox = () => {
     useEffect(() => {
       const fetchData = async () => {
         const userId = await AsyncStorage.getItem('user_id');
-        const response = await fetch(`http://20.199.42.13:8080/historial/salasUsuario/${userId}`);
+        const response = await fetch(`http://10.0.2.2:8080/historial/salasUsuario/${userId}`);
         const jsonData = await response.json();
         setData(jsonData);
         console.log(jsonData)

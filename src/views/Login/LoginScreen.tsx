@@ -28,7 +28,7 @@ const LoginScreen = () => {
             ShowAlert('Error', 'Debes rellenar todos los campos')
         } else {
             try {
-                const response = await fetch('http://20.199.42.13:8080/usuarios/login/' + email + '/' + password);
+                const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
                 // Parse the JSON response
                 const users = await response.json(); 
                 console.log(users)      

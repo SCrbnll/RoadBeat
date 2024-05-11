@@ -58,7 +58,7 @@ class SpotifyAPI {
           
           const options = {
             method: 'GET',
-            url: 'https://spotify-scraper.p.rapidapi.com/v1/track/download',
+            url: '          ',
             params: {
               track: trackName
             },

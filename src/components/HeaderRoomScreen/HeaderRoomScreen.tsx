@@ -12,7 +12,7 @@ const HeaderRoomScreen = () => {
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
             const idSala = await AsyncStorage.getItem('room_id')
-            const roomJson = await fetch('http://20.199.42.13:8080/salas/' + idSala);
+            const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
             const room = await roomJson.json(); 
             console.log(room)
             setName(room.nombre);

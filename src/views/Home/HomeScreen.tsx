@@ -27,7 +27,7 @@ const HomeScreen = () => {
     };
     const generateRandomNumber = async () => {
         let randomNumber;
-        const response = await fetch('http://20.199.42.13:8080/codigosSalas/salas');
+        const response = await fetch('http://10.0.2.2:8080/codigosSalas/salas');
         const jsonData = await response.json();
         const codSalas = [];
         jsonData.map(item => {
@@ -58,7 +58,7 @@ const HomeScreen = () => {
                 const userInfo = JSON.parse(userInfoJson);
                 console.log(userInfo)
                 // Register the Room
-                const response = await fetch('http://20.199.42.13:8080/salas', {
+                const response = await fetch('http://10.0.2.2:8080/salas', {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -76,13 +76,13 @@ const HomeScreen = () => {
                 await AsyncStorage.setItem('room_id', idSala.toString())
                 console.log(idSala) 
 
-                const roomJson = await fetch('http://20.199.42.13:8080/salas/' + idSala);
+                const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
                 const room = await roomJson.json(); 
                 console.log(room)      
 
                 if(idSala){
                     // Register the Code of the Room
-                    const response = await fetch('http://20.199.42.13:8080/codigosSalas', {
+                    const response = await fetch('http://10.0.2.2:8080/codigosSalas', {
                         method: 'POST',
                         headers: {
                             Accept: 'application/json',
@@ -97,6 +97,19 @@ const HomeScreen = () => {
                     const codSala = await response.json(); 
                     console.log(codSala)
                     await AsyncStorage.setItem('room_code', codSala.toString()) 
+                    const responseHistorial = await fetch('http://10.0.2.2:8080/historial', {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                salas: room,
+                                usuarios: userInfo
+                            }),
+                        });
+                        const idHistorial = await responseHistorial.json(); 
+                        console.log(idHistorial)
                     console.log('Sala creada');
                     Alert.alert(
                         'Sala creada exitosamente', ' ',[
@@ -118,7 +131,7 @@ const HomeScreen = () => {
         if(joinCod.length === 0) {
             ShowAlert('Error', 'Debes insertar el código de la sala')
         } else {
-            const roomJson = await fetch('http://20.199.42.13:8080/codigosSalas/codigo/' + joinCod);
+            const roomJson = await fetch('http://10.0.2.2:8080/codigosSalas/codigo/' + joinCod);
             if(roomJson.ok){
                 try{
                     const room = await roomJson.json(); 
@@ -129,11 +142,11 @@ const HomeScreen = () => {
                     const userInfo = JSON.parse(userInfoJson);
 
                     try{
-                        const existJson = await fetch('http://20.199.42.13:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
+                        const existJson = await fetch('http://10.0.,2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
                         const exist = await existJson.json();
                         console.log('Navegar a la otra vista')
                     } catch (error) {
-                        const response = await fetch('http://20.199.42.13:8080/historial', {
+                        const response = await fetch('http://10.0.2.2:8080/historial', {
                             method: 'POST',
                             headers: {
                                 Accept: 'application/json',

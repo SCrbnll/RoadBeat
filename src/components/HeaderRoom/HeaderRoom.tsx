@@ -6,12 +6,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 
 const HeaderRoomScreen = () => {
-    const [username, setUsername] = useState('');
+    const [nombreSala, setNombreSala] = useState('');
 
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
             const salaAnfitrion = await AsyncStorage.getItem("sala_nombre");
-            setUsername(salaAnfitrion);
+            setNombreSala(salaAnfitrion);
         }
         chargeRoomBossInfo();
         }, []);
@@ -22,7 +22,7 @@ const HeaderRoomScreen = () => {
                 <Image source={require('../../assets/images/logo.png')} style={styles.image} />
             </View>
             <View style={styles.titleContainer}>
-                <CustomText style={styles.title}>Detalle de {username}</CustomText>
+                <CustomText style={styles.title}>Detalle de {nombreSala}</CustomText>
             </View>
         </View>
     )
@@ -51,7 +51,6 @@ const styles = StyleSheet.create({
     titleContainer: {
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: Constants.statusBarHeight,
     }
 });
 export default HeaderRoomScreen;

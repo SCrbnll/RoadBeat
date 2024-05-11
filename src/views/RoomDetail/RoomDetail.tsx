@@ -27,7 +27,7 @@ const RoomDetail = () => {
         const fetchData = async () => {
           try {
             const salaId = await AsyncStorage.getItem("sala_id");
-            const response = await fetch(`http://20.199.42.13:8080/historial/${salaId}`);
+            const response = await fetch(`http://10.0.2.2:8080/historial/${salaId}`);
             const jsonData = await response.json();
             console.log(jsonData)
             setUsuarioUsername(jsonData.salas.usuarios.username);

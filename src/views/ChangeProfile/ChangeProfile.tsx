@@ -49,7 +49,7 @@ const ChangeProfile = () => {
                 if(oldPassword == oldPasswordInput) {
                     if(newPasswordInput === newPasswordInput2){
                         // Register the User
-                        const response = await fetch('http://20.199.42.13:8080/usuarios/changepass/' + newPasswordInput, {
+                        const response = await fetch('http://10.0.2.2:8080/usuarios/changepass/' + newPasswordInput, {
                             method: 'PUT',
                             headers: {
                                 Accept: 'application/json',
@@ -66,7 +66,7 @@ const ChangeProfile = () => {
                         });
         
                         // Save the new User into user_info
-                        const userInfo = await fetch('http://20.199.42.13:8080/usuarios/'+ id);
+                        const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
                         const users = await userInfo.json(); 
                         const infoUser = JSON.stringify(users);
                         await AsyncStorage.removeItem('user_info');
