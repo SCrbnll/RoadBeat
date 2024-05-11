@@ -1,9 +1,10 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "../views/Home/HomeScreen";
-import ProfileScreen from "../views/Profile/ProfileScreen";
-import LoginScreen from "../views/Login/LoginScreen";
-import RegisterScreen from "../views/Register/RegisterScreen";
-import HistoryScreen from "../views/History/HistoryScreen";
+import HomeScreen from "../views/HomeScreen";
+import ProfileScreen from "../views/ProfileScreen";
+import LoginScreen from "../views/LoginScreen";
+import RegisterScreen from "../views/RegisterScreen";
+import HistoryScreen from "../views/HistoryScreen";
+import FrequentQuestions from "../views/FrequentQuestions";
 
 import { StyleSheet } from 'react-native';
 
@@ -16,14 +17,15 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 
 import Header from "../components/Header";
-import SalaDetails from "../views/RoomDetail/RoomDetail";
+import SalaDetails from "../views/RoomDetail";
 import HeaderRoom from "../components/HeaderRoom";
 import HeaderProfile from "../components/HeaderProfile";
 import HeaderPassword from "../components/HeaderPassword";
-import ProfileDetail from "../views/ProfileDetail/ProfileDetail";
+import ProfileDetail from "../views/ProfileDetail";
 import ChangeProfile from "../views/ChangeProfile";
 import RoomScreenAdmin from "../views/RoomScreenAdmin";
 import HeaderRoomScreen from "../components/HeaderRoomScreen";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -91,6 +93,7 @@ function Navigation() {
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
                 <Stack.Screen name="SalaDetails" component={SalaDetails} options={{header: () => <HeaderRoom />,}}/>
                 <Stack.Screen name="ProfileDetail" component={ProfileDetail} options={{headerShown: false,}}/>
+                <Stack.Screen name="FrequentQuestions" component={FrequentQuestions} options={{headerShown: false,}}/>
                 <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderPassword />,}}/>
                 <Stack.Screen name="RoomScreenAdmin" component={RoomScreenAdmin} options={{header: () => <HeaderRoomScreen />,}}/>
 
