@@ -4,7 +4,7 @@ import Constants from 'expo-constants'
 import CustomText from "./CustomText";
 
 
-const HeaderPassword = () => {
+const HeaderCustom = ({title}) => {
     
     return (
         <View style={styles.container}>
@@ -12,7 +12,7 @@ const HeaderPassword = () => {
                 <Image source={require('./../assets/images/logo.png')} style={styles.image} />
             </View>
             <View>
-                <CustomText style={styles.title}>Cambio de contraseña</CustomText>
+                <CustomText style={styles.title}>{title}</CustomText>
             </View>
         </View>
     )
@@ -39,4 +39,4 @@ const styles = StyleSheet.create({
         borderRadius: 0,
     }
 });
-export default HeaderPassword;
+export default HeaderCustom;

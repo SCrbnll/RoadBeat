@@ -43,7 +43,8 @@ const RegisterScreen = () => {
                         username: username,
                         password: password,
                         canciones: 0,
-                        foto: 'pfp'
+                        foto: 'pfp',
+                        closed: false
                     }),
                 });
                 // ID of the new User

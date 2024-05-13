@@ -14,6 +14,8 @@ const ChangeProfile = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [canciones, setCanciones] = useState('');
+    const [pfp, setPfp] = useState('');
+    const [closed, setClosed] = useState(Boolean);
     const [oldPassword, setOldPassword] = useState('');
     const [oldPasswordInput, setOldPasswordInput] = useState('');
     const [newPasswordInput, setNewPasswordInput] = useState('');
@@ -37,6 +39,12 @@ const ChangeProfile = () => {
             setName(userInfo.nombre)
             setEmail(userInfo.email)
             setCanciones(userInfo.canciones)
+            if(userInfo.foto == 'pfp'){
+                setPfp('')
+            } else {
+                setPfp(userInfo.foto)
+            }
+            setClosed(userInfo.closed)
         }
         chargeRoomBossInfo();
         }, []);
@@ -61,7 +69,9 @@ const ChangeProfile = () => {
                                 nombre: name,
                                 username: username,
                                 password: newPasswordInput,
-                                canciones: canciones
+                                canciones: canciones,
+                                foto: pfp,
+                                closed: closed
                             }),
                         });
         

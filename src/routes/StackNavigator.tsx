@@ -20,11 +20,12 @@ import Header from "../components/Header";
 import SalaDetails from "../views/RoomDetail";
 import HeaderRoom from "../components/HeaderRoom";
 import HeaderProfile from "../components/HeaderProfile";
-import HeaderPassword from "../components/HeaderPassword";
 import ProfileDetail from "../views/ProfileDetail";
 import ChangeProfile from "../views/ChangeProfile";
 import RoomScreenAdmin from "../views/RoomScreenAdmin";
 import HeaderRoomScreen from "../components/HeaderRoomScreen";
+import HeaderCustom from "../components/HeaderCustom";
+import DeleteUser from "../views/DeleteUser";
 
 
 const Tab = createBottomTabNavigator();
@@ -93,8 +94,9 @@ function Navigation() {
                 <Stack.Screen name="Main" component={BottomTabs} options={{headerShown: false,}}/>
                 <Stack.Screen name="SalaDetails" component={SalaDetails} options={{header: () => <HeaderRoom />,}}/>
                 <Stack.Screen name="ProfileDetail" component={ProfileDetail} options={{headerShown: false,}}/>
-                <Stack.Screen name="FrequentQuestions" component={FrequentQuestions} options={{headerShown: false,}}/>
-                <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderPassword />,}}/>
+                <Stack.Screen name="FrequentQuestions" component={FrequentQuestions} options={{header: () => <HeaderCustom title={'Preguntas frecuentes'}/>,}}/>
+                <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderCustom title={'Cambio de contraseña'}/>,}}/>
+                <Stack.Screen name="DeleteUser" component={DeleteUser} options={{header: () => <HeaderCustom title={'Eliminar cuenta'}/>,}}/>
                 <Stack.Screen name="RoomScreenAdmin" component={RoomScreenAdmin} options={{header: () => <HeaderRoomScreen />,}}/>
 
             </Stack.Navigator>
@@ -106,9 +108,6 @@ const styles = StyleSheet.create({
     bottomTab: {
         backgroundColor: "#180000",
         position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
         shadowOpacity: 4,
         elevation: 4,
         shadowOffset:{

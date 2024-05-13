@@ -18,9 +18,8 @@ const ProfileDetail = () => {
     const [password, setPassword] = useState('');
     const [canciones, setCanciones] = useState('');
     const [pfp, setPfp] = useState('');
+    const [closed, setClosed] = useState('');
     
-
-
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
             const userInfoJson = await AsyncStorage.getItem("user_info");
@@ -36,6 +35,7 @@ const ProfileDetail = () => {
             } else {
                 setPfp(userInfo.foto)
             }
+            setClosed(userInfo.closed)
         }
         chargeRoomBossInfo();
         }, []);
@@ -72,7 +72,8 @@ const ProfileDetail = () => {
                     username: username,
                     password: password,
                     canciones: canciones,
-                    foto: pfp
+                    foto: pfp,
+                    closed: closed
                 }),
             });
     
