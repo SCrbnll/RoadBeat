@@ -1,105 +1,67 @@
-import { StyleSheet, View, FlatList, Alert, Image, TouchableOpacity } from "react-native"
+import { StyleSheet, View, FlatList, Alert, Image, TouchableOpacity, TextInput } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import SpotifyAPI from "../types/SpotifyData";
 
 import CustomText from "../components/CustomText"
-import TrackQueue from "../components/TrackQueue";
 import { Feather } from '@expo/vector-icons';
 import ShowAlert from "../components/ShowAlert";
 
-const RoomScreenAdmin = () => {
+import { Entypo } from '@expo/vector-icons';
+import TrackSearch from "../components/TrackSearch";
+
+const RoomScreenUser = () => {
     const navigation = useNavigation();
     const [code, setCode] = useState('');
     const [songName, setSongName] = useState('');
     const [artistName, setArtistName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
+    const [data, setData] = useState<TrackItem[]>([]);
+    const [searchedSong, setSearchedSong] = useState('');
+    const searchedSongInputRef = useRef<TextInput>(null);
 
-    const data = [
-        {
-            name: 'Song 1',
-            author: 'artist 1',
-            added: 'Agregado por x'
-        },
-        {
-            name: 'Song 2',
-            author: 'artist 1',
-            added: 'Agregado por x'
-        },
-        {
-            name: 'Song 3',
-            author: 'artist 1',
-            added: 'Agregado por x'
-        },
-
-        {
-            name: 'Song 4',
-            author: 'artist 1',
-            added: 'Agregado por x'
-        },
-        {
-            name: 'Song 5',
-            author: 'artist 1',
-            added: 'Agregado por x'
-        },
-        {
-            name: 'Song 6',
-            author: 'artist 1',
-            added: 'Agregado por x'
-        },
-
-    ]
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
     
     useEffect(() => {
-        const chargeRoomInfo = async () => {
-            const roomCode = await AsyncStorage.getItem("room_code")
-            setCode(roomCode)
-            chargeCurrentSong()
+        const initialMethod = async () => {
             SpotifyAPI.getToken()
+        };
+        initialMethod();
+    }, []);
+
+    const searchSong = async () => {
+        try {
+            const searchResult = await SpotifyAPI.searchSongs(searchedSong);
+            const tracks = searchResult.tracks.items;
+            setData(tracks);
+        } catch (error) {
+            console.error('Error al buscar canciones:', error);
         }
-        chargeRoomInfo();
-        }, []
-    );
-
-    const chargeCurrentSong = async () => {
-
     }
-    const closeRoom = async () => {
+
+    const leaveRoom = async () => {
         try {
             const roomJson = await fetch('http://10.0.2.2:8080/salas/' + await AsyncStorage.getItem('room_id'))
             const room = await roomJson.json();
             Alert.alert(
-                'Cerrar sala',
-                '¿Estás seguro de que deseas cerrar la sala?',
+                'Abandonar sala',
+                '¿Estás seguro de que deseas abandonar la sala?',
                 [
-                {
-                    text: 'No',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Sí',
-                    onPress: async () => {
-                            const response = await fetch('http://10.0.2.2:8080/codigosSalas/cerrada', {
-                            method: 'PUT',
-                            headers: {
-                                Accept: 'application/json',
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                cerrada: true,
-                                codSala: code,
-                                salas: room
-                            }),
-                        });
-                        await AsyncStorage.removeItem("room_id")
-                        await AsyncStorage.removeItem("room_code")
-                        handlePress('Main');
+                    {
+                        text: 'No',
+                        style: 'cancel',
                     },
+                    {
+                        text: 'Sí',
+                        onPress: async () => {
+                            await AsyncStorage.removeItem("room_id")
+                            await AsyncStorage.removeItem("room_code")
+                            handlePress('Main');
+                        },
                     },
                 ],
                 { cancelable: false }
@@ -112,10 +74,6 @@ const RoomScreenAdmin = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.textContainer}>
-                <CustomText style={styles.title}>Código de la Sala</CustomText>
-                <CustomText style={styles.code}>{code}</CustomText>
-            </View>
             <View style={styles.currentSongInfo}>
                 <Image source={require('./../assets/images/pfp.png')} style={styles.image} />
                 <View style={{paddingHorizontal: 5}}/>
@@ -130,22 +88,39 @@ const RoomScreenAdmin = () => {
             </View> 
             <View style={styles.textInputLine} />
             <View style={styles.playQueue}>
-                <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
+                <View style={{flexDirection: "row"}}>
+                    <Entypo name="magnifying-glass" size={20} color="white" style={{alignSelf: 'center'}}/>
+                    <TextInput
+                        ref={searchedSongInputRef}
+                        style={styles.textInput}
+                        placeholder="¿Qué canción estás buscando?"
+                        placeholderTextColor="#7A7A7A"
+                        onChangeText={text => setSearchedSong(text)}
+                        value={searchedSong}
+                    />
+                    <TouchableOpacity style = {styles.searchButton} onPress={searchSong}>
+                        <CustomText style={styles.searchTitle}>Buscar</CustomText>
+                    </TouchableOpacity>
+                </View>
                 <View style={styles.queueBox}>
                     <FlatList
                         data={data}
-                        renderItem={({ item }) => <TrackQueue item={item} />}
-                        keyExtractor={item => item.name.toString()}
-                    />
+                        renderItem={({ item }) => <TrackSearch item={item} />}
+                        keyExtractor={item => item.id.toString()}
+                    /> 
                 </View>
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style = {styles.button}>
                     <Feather name="shuffle" size={20} color="white" style={{left: 15}}/>
-                    <CustomText style={styles.buttonTitle}>Saltar canción</CustomText>
+                    <CustomText style={styles.buttonTitle}>Realizar votación</CustomText>
                 </TouchableOpacity>
-                <View style={{padding: 30}}></View>
-                <TouchableOpacity style = {styles.button}  onPress={closeRoom}>
+                <View style={{padding: 5}}></View>
+                <TouchableOpacity style = {styles.button}>
+                    <CustomText style={styles.buttonTitle}>Ver Canciones en cola</CustomText>
+                </TouchableOpacity>
+                <View style={{padding: 20}}></View>
+                <TouchableOpacity style = {styles.button}  onPress={leaveRoom}>
                     <CustomText style={styles.buttonTitle}>Cerrar sala</CustomText>
                 </TouchableOpacity>
             </View>
@@ -153,7 +128,7 @@ const RoomScreenAdmin = () => {
     )
 };
 
-export default RoomScreenAdmin
+export default RoomScreenUser
 
 const styles = StyleSheet.create({
     container: {
@@ -187,7 +162,7 @@ const styles = StyleSheet.create({
         left: 0,
     },
     playQueue: {
-        top: 55,
+        top: 50,
         alignSelf: 'center'
     },
     queueBox: {
@@ -196,16 +171,12 @@ const styles = StyleSheet.create({
         width: 360,
         top: 10,
     },
-    textContainer: {
-        flexDirection: 'row',
-        alignSelf: 'center'
-    },
     textInputLine: {
         borderBottomWidth: 2, 
         borderBottomColor: '#7A7A7A', 
         width: '90%',
         alignSelf: 'center',
-        top: 50
+        top: 40
     },
     contentBox: {
         backgroundColor: '#580000',
@@ -223,7 +194,7 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#580000',
-        padding: 10,
+        padding: 6,
         color: '#FFFFFF',
         marginLeft: 'auto',
         marginRight: 'auto',
@@ -239,6 +210,25 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 12
     },
+    searchButton: {
+        backgroundColor: '#580000',
+        padding: 6,
+        color: '#FFFFFF',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: 60,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        left: 25
+    },
+    searchTitle: {
+        color: '#FFFFFF',
+        textAlign: 'center',
+        flex: 1,
+        fontSize: 10
+    },
     image: {
         width: 100,
         height: 100,
@@ -247,12 +237,20 @@ const styles = StyleSheet.create({
     },
     currentSongInfo: {
         flexDirection: 'row',
-        top: 40,
+        top: 20,
         alignSelf: 'center'
 
     },
     buttonContainer: {
         marginVertical: 8,
         top: 80,
-    }
+    },
+    textInput: {
+        backgroundColor: 'transparent',  
+        fontSize: 14, 
+        color: '#FFFFFF',
+        left: 20,
+        alignSelf: 'center',
+        width: 220
+    },
 });

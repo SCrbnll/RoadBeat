@@ -133,12 +133,16 @@ const HomeScreen = () => {
                     console.log(room.salas)
                     const userInfoJson = await AsyncStorage.getItem('user_info')
                     const userInfo = JSON.parse(userInfoJson);
+                    await AsyncStorage.setItem('room_code', room.codSala.toString()) 
+                    await AsyncStorage.setItem('room_id', room.salas.id.toString())
 
                     try{
-                        const existJson = await fetch('http://10.0.,2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
+                        const existJson = await fetch('http://10.0.2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
                         const exist = await existJson.json();
                         console.log('Navegar a la otra vista')
+                        handlePress("RoomScreenUser")
                     } catch (error) {
+                        console.error(error)
                         const response = await fetch('http://10.0.2.2:8080/historial', {
                             method: 'POST',
                             headers: {
@@ -158,7 +162,7 @@ const HomeScreen = () => {
                                 {
                                 text: 'Okay',
                                 onPress: async () => {
-                                    
+                                    handlePress("RoomScreenUser")
                                 },
                             }],
                         ); 

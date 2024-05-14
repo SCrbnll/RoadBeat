@@ -50,31 +50,48 @@ class SpotifyAPI {
           throw error;
         }
       }
-      static async getTrackUrl(trackName: any) {
+      static async getTrackUrl(trackLink: any) {
+        const axios = require('axios');
         try {
-          if (!token) {
-            await this.getToken();
-          }
-          
-          const options = {
-            method: 'GET',
-            url: '          ',
-            params: {
-              track: trackName
-            },
-            headers: {
-              'X-RapidAPI-Key': 'afd5847009msh06e0f4959fd28a2p169defjsndc0c513ee5c4i',
-              'X-RapidAPI-Host': 'spotify-scraper.p.rapidapi.com',
+          const response = await axios.get(
+            `https://spotify-scraper.p.rapidapi.com/v1/track/download`,
+            {
+              headers: {
+                'X-RapidAPI-Key': 'afd5847009msh06e0f4959fd28a2p169defjsndc0c513ee5c4',
+                'X-RapidAPI-Host': 'spotify-scraper.p.rapidapi.com'
+              },
+              param :{
+                track : trackLink
+              }
             }
-          };
-          
-          const response = await axios.request(options);
-          return response.data.audio[0].url;
+          );
+	        console.log(response.data);
         } catch (error) {
           console.error('Error al obtener la URL de la canción:', error);
-          throw error;
+              throw error;
+        };
+      } 
+
+      static async searchSongs(trackName: string) {
+        trackName.replaceAll(' ', '+');
+        console.log(trackName)
+        try {
+            const response = await axios.get('https://api.spotify.com/v1/search', {
+                params: {
+                    q: trackName,
+                    type: 'track',
+                    limit: 5
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener la URL de la canción:', error);
+            throw error;
         }
-      }
+    }
 }
 
 export default SpotifyAPI;
