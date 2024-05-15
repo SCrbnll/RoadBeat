@@ -50,26 +50,26 @@ class SpotifyAPI {
           throw error;
         }
       }
-      static async getTrackUrl(trackLink: any) {
-        const axios = require('axios');
-        try {
-          const response = await axios.get(
-            `https://spotify-scraper.p.rapidapi.com/v1/track/download`,
-            {
-              headers: {
-                'X-RapidAPI-Key': 'afd5847009msh06e0f4959fd28a2p169defjsndc0c513ee5c4',
-                'X-RapidAPI-Host': 'spotify-scraper.p.rapidapi.com'
-              },
-              param :{
-                track : trackLink
-              }
-            }
-          );
-	        console.log(response.data);
-        } catch (error) {
-          console.error('Error al obtener la URL de la canción:', error);
-              throw error;
+      static async getTrackUrl(trackLink: string) {
+        trackLink = trackLink.replaceAll(':', '%3A');
+        trackLink = trackLink.replaceAll('/', '%2F');
+        console.log('PARSED URL: ' + trackLink);
+        // https%3A%2F%2Fopen.spotify.com%2Ftrack%2F58XWGx7KNNkKneHdprcprX
+        const url = 'https://spotify-scraper.p.rapidapi.com/v1/track/download?track=' + trackLink;
+        const options = {
+          method: 'GET',
+          headers: {
+            'X-RapidAPI-Key': 'afd5847009msh06e0f4959fd28a2p169defjsndc0c513ee5c4',
+            'X-RapidAPI-Host': 'spotify-scraper.p.rapidapi.com'
+          }
         };
+        
+        try {
+          const response = await fetch(url, options);
+          return response.text()
+        } catch (error) {
+          console.error(error);
+        }
       } 
 
       static async searchSongs(trackName: string) {
