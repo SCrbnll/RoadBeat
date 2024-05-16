@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, Alert, Image, TouchableOpacity, TextInput } from "react-native"
+import { StyleSheet, View, FlatList, Image, TouchableOpacity, TextInput } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,7 +6,8 @@ import { useState, useEffect, useRef } from 'react';
 import SpotifyAPI from "../types/SpotifyData";
 
 import CustomText from "../components/CustomText"
-import ShowAlert from "../components/ShowAlert";
+import ConfirmModal from "../components/ConfirmModal";
+import CustomModal from "../components/CustomModal";
 import TrackSearch from "../components/TrackSearch";
 
 import { Feather } from '@expo/vector-icons';
@@ -22,6 +23,10 @@ const RoomScreenUser = () => {
     const [data, setData] = useState<TrackItem[]>([]);
     const [searchedSong, setSearchedSong] = useState('');
     const searchedSongInputRef = useRef<TextInput>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [customModalVisible, setCustomModalVisible] = useState(Boolean);
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
@@ -34,6 +39,20 @@ const RoomScreenUser = () => {
         initialMethod();
     }, []);
 
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
+    const handleConfirm = async () => {
+        await AsyncStorage.removeItem("room_id")
+        await AsyncStorage.removeItem("room_code")
+        handlePress('Main');
+    };
+
     const updateCurrentSong = (songName, artistName, imageUrl) => {
         setSongName(songName);
         setArtistName(artistName);
@@ -41,7 +60,7 @@ const RoomScreenUser = () => {
     };
 
     const searchSong = async () => {
-        if(searchSong.length > 0){
+        if(searchedSong.trim().length > 0){
             try {
                 const searchResult = await SpotifyAPI.searchSongs(searchedSong);
                 const tracks = searchResult.tracks.items;
@@ -50,7 +69,10 @@ const RoomScreenUser = () => {
                 console.error('Error al buscar canciones:', error);
             }
         } else {
-            ShowAlert('Búsqueda de canciones','Debe escribir el nombre de la canción para realizar la búsqueda')
+            setCustomModalVisible(false)
+            setModalTitle('Error')
+            setModalMessage('Debe escribir el nombre de la canción para realizar la búsqueda');
+            openModal();
         }
         
     }
@@ -59,25 +81,10 @@ const RoomScreenUser = () => {
         try {
             const roomJson = await fetch('http://10.0.2.2:8080/salas/' + await AsyncStorage.getItem('room_id'))
             const room = await roomJson.json();
-            Alert.alert(
-                'Abandonar sala',
-                '¿Estás seguro de que deseas abandonar la sala?',
-                [
-                    {
-                        text: 'No',
-                        style: 'cancel',
-                    },
-                    {
-                        text: 'Sí',
-                        onPress: async () => {
-                            await AsyncStorage.removeItem("room_id")
-                            await AsyncStorage.removeItem("room_code")
-                            handlePress('Main');
-                        },
-                    },
-                ],
-                { cancelable: false }
-            );
+            setCustomModalVisible(true)
+            setModalTitle('Abandonar sala')
+            setModalMessage('¿Estás seguro de querer abandonar la sala?');
+            openModal();
         } catch (error) {  
             console.log(error)
         }
@@ -85,6 +92,24 @@ const RoomScreenUser = () => {
     
     return (
         <View style={styles.container}>
+            {
+            customModalVisible ? 
+                <ConfirmModal
+                    visible={modalVisible}
+                    onClose={closeModal}
+                    onConfirm={handleConfirm}
+                    title={modalTitle}
+                    message={modalMessage}
+                />
+            :
+                <CustomModal
+                    visible={modalVisible}
+                    onClose={closeModal}
+                    title={modalTitle}
+                    message={modalMessage}
+                />
+            }
+            
             <View style={styles.currentSongInfo}>
                 {imageUrl ? (
                     <Image source={{ uri: imageUrl }} style={styles.image} />

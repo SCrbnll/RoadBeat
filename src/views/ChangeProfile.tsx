@@ -1,11 +1,11 @@
-import { StyleSheet, View, TouchableOpacity, TextInput, Alert } from "react-native"
+import { StyleSheet, View, TouchableOpacity, TextInput } from "react-native"
 import React from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import CustomText from "../components/CustomText"
-import ShowAlert from "../components/ShowAlert";
+import CustomModal from "../components/CustomModal";
 
 const ChangeProfile = () => {
     const navigation = useNavigation();
@@ -20,6 +20,11 @@ const ChangeProfile = () => {
     const [oldPasswordInput, setOldPasswordInput] = useState('');
     const [newPasswordInput, setNewPasswordInput] = useState('');
     const [newPasswordInput2, setNewPasswordInput2] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [customModalVisible, setCustomModalVisible] = useState(Boolean);
+
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
@@ -48,10 +53,21 @@ const ChangeProfile = () => {
         }
         chargeRoomBossInfo();
         }, []);
+    
+    const openModal = () => {
+        setModalVisible(true);
+    };
+         
+    const closeModal = () => {
+        setModalVisible(false);
+         };
 
     const changeInfo = async () => {
         if(oldPasswordInput.length === 0 || newPasswordInput.length === 0 || newPasswordInput2.length === 0) {
-            ShowAlert('Error', 'Debes rellenar todos los campos')
+            setCustomModalVisible(true)
+            setModalTitle('Error')
+            setModalMessage('Debes rellenar todos los campos');
+            openModal();
         } else {
             try {
                 if(oldPassword == oldPasswordInput) {
@@ -79,24 +95,21 @@ const ChangeProfile = () => {
                         const infoUser = JSON.stringify(users);
                         await AsyncStorage.removeItem('user_info');
                         await AsyncStorage.setItem('user_info', infoUser);
-                        Alert.alert(
-                            'Contrsaeña cambiada exitosamente', 'Se cerrará la sesión de su usuario',[
-                                {
-                                text: 'Okay',
-                                onPress: async () => {
-                                    await AsyncStorage.removeItem("user_password")
-                                    await AsyncStorage.removeItem("user_info")
-                                    await AsyncStorage.removeItem("user_id")
-                                    handlePress('Login')
-                                },
-                            }],
-                        );
+                        
+                        await AsyncStorage.removeItem("user_password")
+                        await AsyncStorage.removeItem("user_info")
+                        await AsyncStorage.removeItem("user_id")
+                        handlePress('Login')
                     } else {
-                        ShowAlert('Error', 'La nueva contraseña no coincide')
+                        setModalTitle('Error')
+                        setModalMessage('La nueva contraseña no coincide');
+                        openModal();
                     }
                     
                 } else {
-                    ShowAlert('Error', 'La contraseña actual no coincide')
+                    setModalTitle('Error')
+                    setModalMessage('La contraseña actual no coincide');
+                    openModal();
                 }  
             } catch (error) {  
                 console.log(error)
@@ -106,6 +119,12 @@ const ChangeProfile = () => {
 
     return (
         <View style={styles.container}>
+            <CustomModal
+                visible={modalVisible}
+                onClose={closeModal}
+                title={modalTitle}
+                message={modalMessage}
+            />
             <View style={{padding: 10}} />
             <View style = {styles.contentBox}>
                 <CustomText style={styles.title}> Contraseña actual</CustomText>

@@ -1,11 +1,11 @@
-import { StyleSheet, View, TouchableOpacity, TextInput, Alert } from "react-native"
+import { StyleSheet, View, TouchableOpacity, TextInput } from "react-native"
 import React from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import CustomText from "../components/CustomText"
-import ShowAlert from "../components/ShowAlert";
+import CustomModal from "../components/CustomModal";
 
 const DeleteUser = () => {
     const navigation = useNavigation();
@@ -17,6 +17,9 @@ const DeleteUser = () => {
     const [pfp, setPfp] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [oldPasswordInput, setOldPasswordInput] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
@@ -45,9 +48,20 @@ const DeleteUser = () => {
         chargeRoomBossInfo();
         }, []);
 
+    const openModal = () => {
+        setModalVisible(true);
+    };
+         
+    const closeModal = () => {
+        setModalVisible(false);
+    };    
+
     const changeInfo = async () => {
         if(oldPasswordInput.length === 0) {
-            ShowAlert('Error', 'Debes escribir su contraseña actual para proseguir')
+            setModalTitle('Error')
+            setModalMessage('Debes escribir su contraseña actual para proseguir');
+            openModal();
+
         } else {
             try {
                 if(oldPassword == oldPasswordInput) {
@@ -75,21 +89,16 @@ const DeleteUser = () => {
                     const userInfo2 = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
                     const users2 = await userInfo2.json(); 
                     const infoUser = JSON.stringify(users2);
-                
-                    Alert.alert(
-                        'Cuenta suspendida correctamente', 'Se cerrará la sesión',[
-                        {
-                            text: 'Okay',
-                            onPress: async () => {
-                                await AsyncStorage.removeItem("user_password")
-                                await AsyncStorage.removeItem("user_info")
-                                await AsyncStorage.removeItem("user_id")
-                                handlePress('Login')
-                            },
-                        }],
-                    );     
+
+                    await AsyncStorage.removeItem("user_password")
+                    await AsyncStorage.removeItem("user_info")
+                    await AsyncStorage.removeItem("user_id")
+                    handlePress('Login')  
                 } else {
-                    ShowAlert('Error', 'La contraseña actual no coincide')
+                    setModalTitle('Error')
+                    setModalMessage('La contraseña actual no coincide');
+                    openModal();
+                    
                 }  
             } catch (error) {  
                 console.log(error)
@@ -99,6 +108,12 @@ const DeleteUser = () => {
 
     return (
         <View style={styles.container}>
+            <CustomModal
+                visible={modalVisible}
+                onClose={closeModal}
+                title={modalTitle}
+                message={modalMessage}
+            />
             <View style={{padding: 10}} />
             <View style = {styles.contentBox}>
                 <CustomText style={styles.title}> Contraseña actual</CustomText>

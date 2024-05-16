@@ -1,4 +1,4 @@
-import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput } from 'react-native';
 import { useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from '@react-navigation/native';
@@ -6,12 +6,15 @@ import { useNavigation } from '@react-navigation/native';
 import Clock from '../components/Clock';
 import Line from '../components/Line';
 import CustomText from '../components/CustomText';
-import ShowAlert from "../components/ShowAlert";
+import CustomModal from '../components/CustomModal';
 
 const HomeScreen = () => {
     const [name, setName] = useState('');
     const [joinCod, setJoinCod] = useState('');
     const navigation = useNavigation();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
@@ -50,9 +53,19 @@ const HomeScreen = () => {
         return randomNumber.toString();
     }
 
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
     const createRoom = async () => {
         if(name.length === 0) {
-            ShowAlert('Error', 'Debes insertar el nombre de la sala')
+            setModalTitle('Error')
+            setModalMessage('Debes insertar el nombre de la sala');
+            openModal();
         } else {
             try {
                 const userInfoJson = await AsyncStorage.getItem('user_info')
@@ -103,15 +116,7 @@ const HomeScreen = () => {
                                 usuarios: userInfo
                             }),
                         });
-                    Alert.alert(
-                        'Sala creada exitosamente', ' ',[
-                            {
-                            text: 'Okay',
-                            onPress: async () => {
-                                handlePress("RoomScreenAdmin")
-                            },
-                        }],
-                    );    
+                    handlePress("RoomScreenAdmin")    
                 }   
             } catch (error) {  
                 console.log(error)
@@ -121,7 +126,9 @@ const HomeScreen = () => {
 
     const joinRoom = async () => {
         if(joinCod.length === 0) {
-            ShowAlert('Error', 'Debes insertar el código de la sala')
+            setModalTitle('Error')
+            setModalMessage('Debes insertar el código de la sala');
+            openModal();
         } else {
             const roomJson = await fetch('http://10.0.2.2:8080/codigosSalas/codigo/' + joinCod);
             if(roomJson.ok){
@@ -150,18 +157,12 @@ const HomeScreen = () => {
                             }),
                         });
                         const idHistorial = await response.json(); 
-                        Alert.alert(
-                            'Uniendote a la sala', ' ',[
-                                {
-                                text: 'Okay',
-                                onPress: async () => {
-                                    handlePress("RoomScreenUser")
-                                },
-                            }],
-                        ); 
+                        handlePress("RoomScreenUser")
                     }
                 } catch (error) {
-                    ShowAlert('Error', 'El códido de la sala no es válido')
+                    setModalTitle('Error')
+                    setModalMessage('El códido de la sala no es válido');
+                    openModal();
                 }
             } 
         }   
@@ -170,6 +171,12 @@ const HomeScreen = () => {
     return (
         <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
             <View style={styles.container}>
+                <CustomModal
+                    visible={modalVisible}
+                    onClose={closeModal}
+                    title={modalTitle}
+                    message={modalMessage}
+                />
                 <Clock />
                 <View style={{marginVertical: 25}}></View>
                 <Line />

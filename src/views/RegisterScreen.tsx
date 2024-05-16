@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import CustomText from '../components/CustomText';
-import ShowAlert from '../components/ShowAlert';
+import CustomModal from '../components/CustomModal';
 import Line from '../components/Line';
 
 const RegisterScreen = () => {
@@ -20,7 +20,10 @@ const RegisterScreen = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
-    
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
@@ -29,9 +32,19 @@ const RegisterScreen = () => {
         setShowPassword(!showPassword); 
     };
 
+    const openModal = () => {
+        setModalVisible(true);
+     };
+     
+     const closeModal = () => {
+        setModalVisible(false);
+     };
+
     const checkRegister = async () => {
         if(name.length === 0 || username.length === 0 || email.length === 0 || password.length === 0) {
-            ShowAlert('Error', 'Debes rellenar todos los campos')
+            setModalTitle('Error')
+            setModalMessage('Debes rellenar todos los campos');
+            openModal();
         } else {
             try {
                 const response = await fetch('http://10.0.2.2:8080/usuarios', {
@@ -61,13 +74,22 @@ const RegisterScreen = () => {
                 await AsyncStorage.setItem('user_password', password);
                 handlePress('Main')
             } catch (error) {  
-                ShowAlert('Error', 'This email is already used')
+                setModalTitle('Error')
+                setModalMessage('Este email ya pertenece a otra cuenta');
+                openModal();
+                
             }
         }
     }
 
     return (
         <LinearGradient colors={['#040306', '#210000']} style={{ flex: 1}}>
+            <CustomModal
+                visible={modalVisible}
+                onClose={closeModal}
+                title={modalTitle}
+                message={modalMessage}
+            />
             <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
                 <Image
                     source={require('./../assets/images/logo-full.png')}

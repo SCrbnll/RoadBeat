@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, Alert, TextInput, Image } from "react-native"
+import { StyleSheet, View, TouchableOpacity, TextInput, Image } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -83,15 +83,7 @@ const ProfileDetail = () => {
             const infoUser = JSON.stringify(users);
             await AsyncStorage.removeItem('user_info');
             await AsyncStorage.setItem('user_info', infoUser);
-            Alert.alert(
-                'Información cambiada exitosamente', '',[
-                    {
-                    text: 'Okay',
-                    onPress: () => {
-                        handlePress()
-                    },
-                }],
-            );
+            handlePress()
         } catch (error) {  
             console.log(error)
         }

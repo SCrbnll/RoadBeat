@@ -8,8 +8,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SpotifyAPI from '../types/SpotifyData';
 
 import CustomText from '../components/CustomText';
-import ShowAlert from '../components/ShowAlert';
 import Line from '../components/Line';
+import CustomModal from '../components/CustomModal';
 
 const LoginScreen = () => {
     const emailInputRef = useRef<TextInput>(null);
@@ -18,6 +18,9 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
@@ -27,9 +30,19 @@ const LoginScreen = () => {
         setShowPassword(!showPassword); 
     };
 
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
     const checkLogin = async () => {
         if(email.length === 0 || password.length === 0) {
-            ShowAlert('Error', 'Debes rellenar todos los campos')
+            setModalTitle('Error')
+            setModalMessage('Debes rellenar todos los campos');
+            openModal();
         } else {
             try {
                 const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
@@ -50,17 +63,27 @@ const LoginScreen = () => {
                     });
                     handlePress('Main');
                 } else {
-                    ShowAlert('Error', 'Credenciales incorrectas');
+                    setModalTitle('Error')
+                    setModalMessage('Credenciales incorrectas');
+                    openModal();
                 }
             } catch (error) {
                 console.error('Error during login:', error);
-                ShowAlert('Error', 'An error occurred while logging in');
+                setModalTitle('Error')
+                setModalMessage('Ha ocurrido un problema durante el login');
+                openModal();
             }
         }
     }
     
     return (
         <LinearGradient colors={['#040306', '#210000']} style={{ flex: 1 }}>
+            <CustomModal
+                visible={modalVisible}
+                onClose={closeModal}
+                title={modalTitle}
+                message={modalMessage}
+            />
             <SafeAreaView style={{ paddingTop: Constants.statusBarHeight }}>
                 <Image
                     source={require('./../assets/images/logo-full.png')}

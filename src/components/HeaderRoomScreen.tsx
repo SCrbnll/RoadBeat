@@ -14,7 +14,6 @@ const HeaderRoomScreen = () => {
             const idSala = await AsyncStorage.getItem('room_id')
             const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
             const room = await roomJson.json(); 
-            console.log(room)
             setName(room.nombre);
             setAnfitrion(room.usuarios.username)
         }

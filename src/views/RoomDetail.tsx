@@ -24,7 +24,6 @@ const RoomDetail = () => {
             const salaId = await AsyncStorage.getItem("sala_id");
             const response = await fetch(`http://10.0.2.2:8080/historial/${salaId}`);
             const jsonData = await response.json();
-            console.log(jsonData)
             setUsuarioUsername(jsonData.salas.usuarios.username);
             setFechaSala(formatDate(jsonData.salas.fecha));
             setPlaylist(jsonData.salas.linkPlaylist);

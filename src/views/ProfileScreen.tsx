@@ -1,9 +1,12 @@
-import { StyleSheet, View, TouchableOpacity, Alert } from "react-native"
+import { StyleSheet, View, TouchableOpacity } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
 
 import CustomText from "../components/CustomText"
+import ConfirmModal from "../components/ConfirmModal";
+
 import { Feather } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,36 +14,44 @@ import { FontAwesome6 } from '@expo/vector-icons';
 
 const ProfileDetail = () => {
     const navigation = useNavigation();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
 
     const logOut = () => {
-        Alert.alert(
-            'Cerrar sesión',
-            '¿Estás seguro de que deseas cerrar sesión?',
-            [
-                {
-                    text: 'No',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Sí',
-                    onPress: async () => {
-                        await AsyncStorage.removeItem("user_password")
-                        await AsyncStorage.removeItem("user_info")
-                        await AsyncStorage.removeItem("user_id")
-                        handlePress('Login');
-                    },
-                },
-            ],
-            { cancelable: false }
-        );
+        setModalTitle('Cerrar sesión')
+        setModalMessage('¿Estás seguro que deseas cerrar sesión?');
+        openModal();
+    };
+
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
+    const handleConfirm = async () => {
+        await AsyncStorage.removeItem("user_password")
+        await AsyncStorage.removeItem("user_info")
+        await AsyncStorage.removeItem("user_id")
+        handlePress('Login');
     };
 
     return (
         <View style={styles.container}>
+            <ConfirmModal
+                visible={modalVisible}
+                onClose={closeModal}
+                onConfirm={handleConfirm}
+                title={modalTitle}
+                message={modalMessage}
+            />
             <CustomText style={styles.title}>Mi perfil</CustomText>
             <View style={{ marginVertical: 15 }} />
             <View style={styles.buttonContainer}>

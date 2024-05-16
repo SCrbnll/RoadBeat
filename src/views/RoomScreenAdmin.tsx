@@ -8,7 +8,6 @@ import SpotifyAPI from "../types/SpotifyData";
 import CustomText from "../components/CustomText"
 import TrackQueue from "../components/TrackQueue";
 import { Feather } from '@expo/vector-icons';
-import ShowAlert from "../components/ShowAlert";
 
 const RoomScreenAdmin = () => {
     const navigation = useNavigation();
