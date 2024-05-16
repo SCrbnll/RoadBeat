@@ -45,4 +45,5 @@ interface TrackItem {
 
 interface TrackSearchProps {
   item: TrackItem;
+  updateCurrentSong: (songName: string, artistName: string, imageUrl: string) => void;
 }

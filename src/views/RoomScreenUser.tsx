@@ -7,14 +7,14 @@ import SpotifyAPI from "../types/SpotifyData";
 
 import CustomText from "../components/CustomText"
 import { Feather } from '@expo/vector-icons';
-import ShowAlert from "../components/ShowAlert";
 
 import { Entypo } from '@expo/vector-icons';
 import TrackSearch from "../components/TrackSearch";
+import { FontAwesome5 } from '@expo/vector-icons';
+import ShowAlert from "../components/ShowAlert";
 
 const RoomScreenUser = () => {
     const navigation = useNavigation();
-    const [code, setCode] = useState('');
     const [songName, setSongName] = useState('');
     const [artistName, setArtistName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
@@ -33,14 +33,25 @@ const RoomScreenUser = () => {
         initialMethod();
     }, []);
 
+    const updateCurrentSong = (songName, artistName, imageUrl) => {
+        setSongName(songName);
+        setArtistName(artistName);
+        setImageUrl(imageUrl);
+    };
+
     const searchSong = async () => {
-        try {
-            const searchResult = await SpotifyAPI.searchSongs(searchedSong);
-            const tracks = searchResult.tracks.items;
-            setData(tracks);
-        } catch (error) {
-            console.error('Error al buscar canciones:', error);
+        if(searchSong.length > 0){
+            try {
+                const searchResult = await SpotifyAPI.searchSongs(searchedSong);
+                const tracks = searchResult.tracks.items;
+                setData(tracks);
+            } catch (error) {
+                console.error('Error al buscar canciones:', error);
+            }
+        } else {
+            ShowAlert('Búsqueda de canciones','Debe escribir el nombre de la canción para realizar la búsqueda')
         }
+        
     }
 
     const leaveRoom = async () => {
@@ -75,14 +86,24 @@ const RoomScreenUser = () => {
     return (
         <View style={styles.container}>
             <View style={styles.currentSongInfo}>
-                <Image source={require('./../assets/images/pfp.png')} style={styles.image} />
+                {imageUrl ? (
+                    <Image source={{ uri: imageUrl }} style={styles.image} />
+                ) : (
+                    <Image source={require('./../assets/images/logo.png')} style={styles.image} />
+                )}
                 <View style={{paddingHorizontal: 5}}/>
                 <View>
                     <CustomText style={styles.actualTrack}>Canción actual</CustomText>
-                    <View style={styles.contentBox}>
-                        <CustomText style={styles.dataTrack}>Running in the Night</CustomText>
-                        <CustomText style={styles.dataTrack}>FM-84</CustomText>
-                    </View>
+                    {songName || artistName ? (
+                        <View style={styles.contentBox}>
+                            <CustomText style={styles.dataTrack}>{songName}</CustomText>
+                            <CustomText style={styles.dataTrack}>{artistName}</CustomText>
+                        </View>
+                    ) : (
+                        <View style={styles.contentBox}>
+                            <CustomText style={styles.dataTrack}>No hay ninguna canción reproduciéndose</CustomText>
+                        </View>
+                    )}
                     <CustomText style={styles.addedBy}>Agregada por Usuario1</CustomText>
                 </View>
             </View> 
@@ -102,12 +123,25 @@ const RoomScreenUser = () => {
                         <CustomText style={styles.searchTitle}>Buscar</CustomText>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.queueBox}>
-                    <FlatList
-                        data={data}
-                        renderItem={({ item }) => <TrackSearch item={item} />}
-                        keyExtractor={item => item.id.toString()}
-                    /> 
+                <View>
+                    {data.length > 0 ? (
+                        <View style={styles.queueBox}>
+                            <FlatList
+                            data={data}
+                            renderItem={({ item }) => <TrackSearch item={item} updateCurrentSong={updateCurrentSong}/>}
+                            keyExtractor={item => item.id.toString()}
+                            />
+                        </View>
+                        
+                    ) : (
+                        <View style={styles.queueBox}>
+                            <View style={styles.noSearchedSong}>
+                                <FontAwesome5 name="ghost" size={52} color="white" style={styles.iconQueuBox}/>
+                                <CustomText style={styles.titleNoSearchedSong}>Escribe el nombre de la cancíón que deseas escuchar</CustomText>
+                            </View>
+                        </View>
+                    )}
+
                 </View>
             </View>
             <View style={styles.buttonContainer}>
@@ -121,7 +155,7 @@ const RoomScreenUser = () => {
                 </TouchableOpacity>
                 <View style={{padding: 20}}></View>
                 <TouchableOpacity style = {styles.button}  onPress={leaveRoom}>
-                    <CustomText style={styles.buttonTitle}>Cerrar sala</CustomText>
+                    <CustomText style={styles.buttonTitle}>Abandonar sala</CustomText>
                 </TouchableOpacity>
             </View>
         </View>  
@@ -253,4 +287,26 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: 220
     },
+    noSearchedSong: {
+        alignSelf: 'center',
+        padding: 40,
+        justifyContent: 'space-between',
+    },
+    iconQueuBox: {
+        width: 100,
+        height: 100,
+        top: 50,
+        alignSelf: 'center',
+        left: 30,
+        opacity: 0.5 
+    },
+    titleNoSearchedSong: {
+        color: '#FFFFFF',
+        textAlign: 'center',
+        flex: 1,
+        fontSize: 12,
+        top: 30,
+        width: 300,
+        opacity: 0.5
+    }
 });
