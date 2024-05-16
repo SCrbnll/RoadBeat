@@ -3,7 +3,7 @@ import {View, Image, StyleSheet} from 'react-native';
 import Constants from 'expo-constants'
 import CustomText from "./CustomText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
 const HeaderProfile = () => {
@@ -76,4 +76,5 @@ const styles = StyleSheet.create({
         left: 50
     }
 });
+
 export default HeaderProfile;

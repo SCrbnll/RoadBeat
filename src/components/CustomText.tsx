@@ -1,6 +1,6 @@
 import { Text } from 'react-native';
 import * as Font from 'expo-font';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 const CustomText = (props) => {
     const [fontLoaded, setFontLoaded] = useState(false);

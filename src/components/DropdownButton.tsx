@@ -11,15 +11,16 @@ const DropdownButton = ({titleButton ,content, enlace}) => {
     const navigation = useNavigation(); 
     const [showDropdown, setShowDropdown] = useState(false);
 
-    const toggleDropdown = () => {
-        setShowDropdown(!showDropdown);
-    };
     const handleIconPress = () => {
         if (enlace) {
             navigation.navigate('DeleteUser' as never);
         }
     };
 
+    const toggleDropdown = () => {
+        setShowDropdown(!showDropdown);
+    };
+    
     return (
         <View>
             <TouchableOpacity onPress={toggleDropdown} style={styles.button}>

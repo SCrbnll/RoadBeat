@@ -14,17 +14,17 @@ const formatDate =  (fecha) => {
 }
 const Item = ({ item }) => {
   const navigation = useNavigation();
+
   const handlePress = async () => {
     try {
       AsyncStorage.setItem('sala_id', item.id.toString())
       AsyncStorage.setItem("sala_nombre", item.salas.nombre);
-      console.log(item.id);
-      console.log(item.salas.nombre);
       navigation.navigate('SalaDetails' as never);
     } catch (error) {
       console.log("Error al guardar el ID de la sala:", error);
     }
   };
+  
   return (
     <View style={styles.item}>
         <CustomText style={styles.title}>Sala</CustomText>

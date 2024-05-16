@@ -15,24 +15,25 @@ const ProfileDetail = () => {
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
+
     const logOut = () => {
         Alert.alert(
             'Cerrar sesión',
             '¿Estás seguro de que deseas cerrar sesión?',
             [
-            {
-                text: 'No',
-                style: 'cancel',
-            },
-            {
-                text: 'Sí',
-                onPress: async () => {
-                    await AsyncStorage.removeItem("user_password")
-                    await AsyncStorage.removeItem("user_info")
-                    await AsyncStorage.removeItem("user_id")
-                    handlePress('Login');
+                {
+                    text: 'No',
+                    style: 'cancel',
                 },
-            },
+                {
+                    text: 'Sí',
+                    onPress: async () => {
+                        await AsyncStorage.removeItem("user_password")
+                        await AsyncStorage.removeItem("user_info")
+                        await AsyncStorage.removeItem("user_id")
+                        handlePress('Login');
+                    },
+                },
             ],
             { cancelable: false }
         );
@@ -70,15 +71,11 @@ const ProfileDetail = () => {
                     <View style={{ marginHorizontal: 5 }} />
                     <CustomText style={styles.buttonTitle}>Cerrar sesión</CustomText>
                 </TouchableOpacity>
-                
             </View>
             <CustomText style={styles.subtitle}>Copyright C 2024 RoadBeat. {"\n"}RoadBeat.com v1.0.0</CustomText>
-            
         </View>
     )
 }
-
-export default ProfileDetail
 
 const styles = StyleSheet.create({
     container: {
@@ -98,7 +95,7 @@ const styles = StyleSheet.create({
         marginRight: 'auto',
         bottom: 70,
         textAlign: 'center'
-      },
+    },
     buttonContainer: {
         flex: 1,
         marginTop: 10,
@@ -112,10 +109,12 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignItems: 'center',
         flexDirection: 'row',
-      },
+    },
       buttonTitle: {
         color: '#FFFFFF',
         flex: 1,
         fontSize: 12
-      },
+    },
 })
+
+export default ProfileDetail

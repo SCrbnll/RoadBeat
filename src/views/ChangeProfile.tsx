@@ -56,7 +56,6 @@ const ChangeProfile = () => {
             try {
                 if(oldPassword == oldPasswordInput) {
                     if(newPasswordInput === newPasswordInput2){
-                        // Register the User
                         const response = await fetch('http://10.0.2.2:8080/usuarios/changepass/' + newPasswordInput, {
                             method: 'PUT',
                             headers: {
@@ -75,14 +74,11 @@ const ChangeProfile = () => {
                             }),
                         });
         
-                        // Save the new User into user_info
                         const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
                         const users = await userInfo.json(); 
                         const infoUser = JSON.stringify(users);
                         await AsyncStorage.removeItem('user_info');
                         await AsyncStorage.setItem('user_info', infoUser);
-                        console.log('User info saved to AsyncStorage');
-                        console.log(infoUser)
                         Alert.alert(
                             'Contrsaeña cambiada exitosamente', 'Se cerrará la sesión de su usuario',[
                                 {
@@ -164,8 +160,6 @@ const ChangeProfile = () => {
     )
 };
 
-export default ChangeProfile
-
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
@@ -229,3 +223,5 @@ const styles = StyleSheet.create({
         color: '#FFE500'
     }
 });
+
+export default ChangeProfile

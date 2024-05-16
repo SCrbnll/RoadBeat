@@ -1,5 +1,5 @@
 import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from '@react-navigation/native';
 
@@ -13,18 +13,18 @@ const HomeScreen = () => {
     const [joinCod, setJoinCod] = useState('');
     const navigation = useNavigation();
 
+    const handlePress = (screenName) => {
+        navigation.navigate(screenName as never);
+    };
+
     const currentDate = () => {
         const currentDate = new Date();
         const year = currentDate.getFullYear();
         const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
         const day = (currentDate.getDay() + 1).toString().padStart(2, '0')
-        console.log(`${year}-${month}-${day}`)
-
         return(`${year}-${month}-${day}`);
     }
-    const handlePress = (screenName) => {
-        navigation.navigate(screenName as never);
-    };
+
     const generateRandomNumber = async () => {
         let randomNumber;
         const response = await fetch('http://10.0.2.2:8080/codigosSalas/salas');
@@ -33,6 +33,7 @@ const HomeScreen = () => {
         jsonData.map(item => {
             codSalas.push(item.codSala);
         });
+
         if (codSalas.length === 0) {
             randomNumber = Math.floor(Math.random() * 900) + 100;
         } else if (codSalas.length === 1) {
@@ -56,7 +57,7 @@ const HomeScreen = () => {
             try {
                 const userInfoJson = await AsyncStorage.getItem('user_info')
                 const userInfo = JSON.parse(userInfoJson);
-                // Register the Room
+
                 const response = await fetch('http://10.0.2.2:8080/salas', {
                     method: 'POST',
                     headers: {
@@ -70,14 +71,13 @@ const HomeScreen = () => {
                         fecha: currentDate()
                     }),
                 });
-                // ID of the new Room
+
                 const idSala = await response.json(); 
                 await AsyncStorage.setItem('room_id', idSala.toString())
                 const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
                 const room = await roomJson.json();     
 
                 if(idSala){
-                    // Register the Code of the Room
                     const response = await fetch('http://10.0.2.2:8080/codigosSalas', {
                         method: 'POST',
                         headers: {
@@ -103,7 +103,6 @@ const HomeScreen = () => {
                                 usuarios: userInfo
                             }),
                         });
-                    const idHistorial = await responseHistorial.json(); 
                     Alert.alert(
                         'Sala creada exitosamente', ' ',[
                             {
@@ -128,9 +127,6 @@ const HomeScreen = () => {
             if(roomJson.ok){
                 try{
                     const room = await roomJson.json(); 
-                
-                    console.log(room)
-                    console.log(room.salas)
                     const userInfoJson = await AsyncStorage.getItem('user_info')
                     const userInfo = JSON.parse(userInfoJson);
                     await AsyncStorage.setItem('room_code', room.codSala.toString()) 
@@ -139,7 +135,6 @@ const HomeScreen = () => {
                     try{
                         const existJson = await fetch('http://10.0.2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
                         const exist = await existJson.json();
-                        console.log('Navegar a la otra vista')
                         handlePress("RoomScreenUser")
                     } catch (error) {
                         console.error(error)
@@ -155,8 +150,6 @@ const HomeScreen = () => {
                             }),
                         });
                         const idHistorial = await response.json(); 
-                        console.log(idHistorial)
-                        console.log('Unión completada')
                         Alert.alert(
                             'Uniendote a la sala', ' ',[
                                 {
@@ -291,7 +284,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         left: 5,
         color: '#FFFFFF'
-      },
+    },
     numberContainer:{
         top: 12,
         left: 50,

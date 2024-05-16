@@ -28,7 +28,6 @@ import HeaderCustom from "../components/HeaderCustom";
 import DeleteUser from "../views/DeleteUser";
 import RoomScreenUser from "../views/RoomScreenUser";
 
-
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {

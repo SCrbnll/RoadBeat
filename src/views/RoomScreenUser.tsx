@@ -6,12 +6,13 @@ import { useState, useEffect, useRef } from 'react';
 import SpotifyAPI from "../types/SpotifyData";
 
 import CustomText from "../components/CustomText"
-import { Feather } from '@expo/vector-icons';
-
-import { Entypo } from '@expo/vector-icons';
-import TrackSearch from "../components/TrackSearch";
-import { FontAwesome5 } from '@expo/vector-icons';
 import ShowAlert from "../components/ShowAlert";
+import TrackSearch from "../components/TrackSearch";
+
+import { Feather } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
+
 
 const RoomScreenUser = () => {
     const navigation = useNavigation();
@@ -82,7 +83,6 @@ const RoomScreenUser = () => {
         }
     }
     
-
     return (
         <View style={styles.container}>
             <View style={styles.currentSongInfo}>
@@ -161,8 +161,6 @@ const RoomScreenUser = () => {
         </View>  
     )
 };
-
-export default RoomScreenUser
 
 const styles = StyleSheet.create({
     container: {
@@ -310,3 +308,5 @@ const styles = StyleSheet.create({
         opacity: 0.5
     }
 });
+
+export default RoomScreenUser

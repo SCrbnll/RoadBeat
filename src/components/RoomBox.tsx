@@ -23,6 +23,7 @@ const RoomBox = ({data}) => {
         paddingHorizontal: 18,
     },
 })
+
 export default RoomBox;
 
 

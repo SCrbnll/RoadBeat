@@ -1,11 +1,10 @@
 import { StyleSheet, View } from "react-native"
 import React from "react"
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomText from "../components/CustomText"
 import SalaBox from "../components/RoomBox"
 import { useFocusEffect } from '@react-navigation/native';
-
 
 const HistoryScreen = () => {
   const [data, setData] = useState();
@@ -17,7 +16,6 @@ const HistoryScreen = () => {
         const response = await fetch(`http://10.0.2.2:8080/historial/salasUsuario/${userId}`);
         const jsonData = await response.json();
         setData(jsonData);
-        console.log(jsonData);
       };
 
       fetchData();
@@ -32,7 +30,6 @@ const HistoryScreen = () => {
       </View>
     );
   };
-export default HistoryScreen
 
 const styles = StyleSheet.create({
     container: {
@@ -53,3 +50,5 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
 })
+
+export default HistoryScreen

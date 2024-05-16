@@ -55,29 +55,27 @@ const DeleteUser = () => {
                     const users = await userInfo.json(); 
 
                     const response = await fetch('http://10.0.2.2:8080/usuarios/changeprofile', {
-                method: 'PUT',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: users.id,
-                    email: users.email,
-                    nombre: users.nombre,
-                    username: users.username,
-                    password: users.password,
-                    canciones: users.canciones,
-                    foto: users.foto,
-                    closed: true
-                }),
-            });
+                        method: 'PUT',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            id: users.id,
+                            email: users.email,
+                            nombre: users.nombre,
+                            username: users.username,
+                            password: users.password,
+                            canciones: users.canciones,
+                            foto: users.foto,
+                            closed: true
+                        }),
+                    });
 
                     const userInfo2 = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
                     const users2 = await userInfo2.json(); 
                     const infoUser = JSON.stringify(users2);
-                    console.log(infoUser)
-                    
-        
+                
                     Alert.alert(
                         'Cuenta suspendida correctamente', 'Se cerrará la sesión',[
                         {
@@ -136,8 +134,6 @@ const DeleteUser = () => {
     )
 };
 
-export default DeleteUser
-
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
@@ -193,3 +189,5 @@ const styles = StyleSheet.create({
         color: '#FFE500'
     }
 });
+
+export default DeleteUser

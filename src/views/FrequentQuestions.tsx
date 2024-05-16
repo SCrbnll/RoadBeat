@@ -1,6 +1,5 @@
 import { StyleSheet, View, TouchableOpacity } from "react-native"
 import React from "react"
-import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 
 import CustomText from "../components/CustomText"
@@ -8,6 +7,7 @@ import DropdownButton from "../components/DropdownButton";
 
 const FrequentQuestions = () => {    
     const navigation = useNavigation();
+
     const handlePress = () => {
         navigation.goBack()
       };
@@ -24,8 +24,6 @@ const FrequentQuestions = () => {
         </View>  
     )
 };
-
-export default FrequentQuestions
 
 const styles = StyleSheet.create({
     container: {
@@ -54,9 +52,6 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 12
     },
-    dropdown: {
-        position: 'absolute',
-        backgroundColor: '#fff',
-        top: 50,
-      },
 });
+
+export default FrequentQuestions

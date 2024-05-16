@@ -20,6 +20,10 @@ const RegisterScreen = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
+    
+    const handlePress = (screenName) => {
+        navigation.navigate(screenName as never);
+    };
 
     const toggleShowPassword = () => { 
         setShowPassword(!showPassword); 
@@ -30,7 +34,6 @@ const RegisterScreen = () => {
             ShowAlert('Error', 'Debes rellenar todos los campos')
         } else {
             try {
-                // Register the User
                 const response = await fetch('http://10.0.2.2:8080/usuarios', {
                     method: 'POST',
                     headers: {
@@ -47,19 +50,14 @@ const RegisterScreen = () => {
                         closed: false
                     }),
                 });
-                // ID of the new User
                 const idUser = await response.json(); 
                 await AsyncStorage.setItem('user_id', idUser.toString())
-                console.log(idUser) 
     
-                // Save the new User into user_info
                 const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ idUser);
                 const users = await userInfo.json(); 
                 const infoUser = JSON.stringify(users);
                 await AsyncStorage.setItem('user_info', infoUser);
                 await AsyncStorage.setItem('profileImage', users.foto)
-                console.log('User info saved to AsyncStorage');
-                console.log(infoUser)
                 await AsyncStorage.setItem('user_password', password);
                 handlePress('Main')
             } catch (error) {  
@@ -67,10 +65,6 @@ const RegisterScreen = () => {
             }
         }
     }
-
-    const handlePress = (screenName) => {
-        navigation.navigate(screenName as never);
-    };
 
     return (
         <LinearGradient colors={['#040306', '#210000']} style={{ flex: 1}}>

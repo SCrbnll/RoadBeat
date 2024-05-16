@@ -19,6 +19,10 @@ const LoginScreen = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
 
+    const handlePress = (screenName) => {
+        navigation.navigate(screenName as never);
+    };
+
     const toggleShowPassword = () => { 
         setShowPassword(!showPassword); 
     };
@@ -29,23 +33,16 @@ const LoginScreen = () => {
         } else {
             try {
                 const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
-                // Parse the JSON response
                 const users = await response.json(); 
-                console.log(users)      
-                // Check if the user exists and the email and password match
                 if (!users.error || !users == null) {
-                    // Save user info to AsyncStorage
                     const userInfo = JSON.stringify(users);
                     const userId = users.id;
                     await AsyncStorage.setItem('user_id', userId.toString());
                     await AsyncStorage.setItem('user_info', userInfo);
                     await AsyncStorage.setItem('profileImage', users.foto)
-                    console.log('User info saved to AsyncStorage');
                     await AsyncStorage.setItem('user_password', password);
-                    // User exists, navigate to the main screen
                     await SpotifyAPI.getToken()
                     .then(token => {
-                        console.log(token);
                         AsyncStorage.setItem("token", token)
                     })
                     .catch(error => {
@@ -53,21 +50,15 @@ const LoginScreen = () => {
                     });
                     handlePress('Main');
                 } else {
-                    // User does not exist, show an error message
                     ShowAlert('Error', 'Credenciales incorrectas');
                 }
             } catch (error) {
                 console.error('Error during login:', error);
-                // Handle any errors that occur during the request
                 ShowAlert('Error', 'An error occurred while logging in');
             }
         }
-        
     }
-    const handlePress = (screenName) => {
-        navigation.navigate(screenName as never);
-    };
-
+    
     return (
         <LinearGradient colors={['#040306', '#210000']} style={{ flex: 1 }}>
             <SafeAreaView style={{ paddingTop: Constants.statusBarHeight }}>
@@ -172,12 +163,6 @@ const styles = StyleSheet.create({
         fontSize: 14, 
         color: '#FFFFFF',
         left: 35
-    },
-    textInputLine: {
-        borderBottomWidth: 2, 
-        borderBottomColor: '#7A7A7A', 
-        width: '80%',
-        alignSelf: 'center',
     },
     register: {
         color: '#FFFFFF',

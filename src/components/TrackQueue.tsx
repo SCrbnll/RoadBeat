@@ -1,6 +1,5 @@
 import { StyleSheet, View, Image } from "react-native"
 import React from "react"
-import { useState } from 'react';
 
 import CustomText from "./CustomText"
 
@@ -49,6 +48,7 @@ const TrackQueue = ({ item }) => {
       left: 50,
     },
 })
+
 export default TrackQueue;
 
 
