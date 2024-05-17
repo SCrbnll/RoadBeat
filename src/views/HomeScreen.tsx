@@ -116,7 +116,7 @@ const HomeScreen = () => {
                                 usuarios: userInfo
                             }),
                         });
-                    handlePress("RoomScreenAdmin")    
+                    handlePress("RoomScreen")    
                 }   
             } catch (error) {  
                 console.log(error)
@@ -142,9 +142,8 @@ const HomeScreen = () => {
                     try{
                         const existJson = await fetch('http://10.0.2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
                         const exist = await existJson.json();
-                        handlePress("RoomScreenUser")
+                        handlePress("RoomScreen")
                     } catch (error) {
-                        console.error(error)
                         const response = await fetch('http://10.0.2.2:8080/historial', {
                             method: 'POST',
                             headers: {
@@ -157,7 +156,7 @@ const HomeScreen = () => {
                             }),
                         });
                         const idHistorial = await response.json(); 
-                        handlePress("RoomScreenUser")
+                        handlePress("RoomScreen")
                     }
                 } catch (error) {
                     setModalTitle('Error')

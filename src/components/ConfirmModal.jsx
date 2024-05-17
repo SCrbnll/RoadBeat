@@ -4,7 +4,7 @@ import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 const ConfirmModal = ({ visible, onClose, onConfirm, title, message }) => {
     return (
         <Modal
-            animationType="fade"
+            animationType="slide"
             transparent={true}
             visible={visible}
             onRequestClose={onClose}

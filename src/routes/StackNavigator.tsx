@@ -22,11 +22,10 @@ import HeaderRoom from "../components/HeaderRoom";
 import HeaderProfile from "../components/HeaderProfile";
 import ProfileDetail from "../views/ProfileDetail";
 import ChangeProfile from "../views/ChangeProfile";
-import RoomScreenAdmin from "../views/RoomScreenAdmin";
 import HeaderRoomScreen from "../components/HeaderRoomScreen";
 import HeaderCustom from "../components/HeaderCustom";
 import DeleteUser from "../views/DeleteUser";
-import RoomScreenUser from "../views/RoomScreenUser";
+import RoomScreen from "../views/RoomScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -97,8 +96,7 @@ function Navigation() {
                 <Stack.Screen name="FrequentQuestions" component={FrequentQuestions} options={{header: () => <HeaderCustom title={'Preguntas frecuentes'}/>,}}/>
                 <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderCustom title={'Cambio de contraseña'}/>,}}/>
                 <Stack.Screen name="DeleteUser" component={DeleteUser} options={{header: () => <HeaderCustom title={'Eliminar cuenta'}/>,}}/>
-                <Stack.Screen name="RoomScreenAdmin" component={RoomScreenAdmin} options={{header: () => <HeaderRoomScreen />,}}/>
-                <Stack.Screen name="RoomScreenUser" component={RoomScreenUser} options={{header: () => <HeaderRoomScreen />,}}/>
+                <Stack.Screen name="RoomScreen" component={RoomScreen} options={{header: () => <HeaderRoomScreen />,}}/>
 
             </Stack.Navigator>
         </NavigationContainer>

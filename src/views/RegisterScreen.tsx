@@ -28,6 +28,10 @@ const RegisterScreen = () => {
         navigation.navigate(screenName as never);
     };
 
+    const handleBack = () => {
+        navigation.goBack()
+    };
+
     const toggleShowPassword = () => { 
         setShowPassword(!showPassword); 
     };
@@ -151,6 +155,10 @@ const RegisterScreen = () => {
                     <TouchableOpacity style = {styles.button} onPress={checkRegister}>
                         <CustomText style={styles.buttonTitle}>Crear cuenta</CustomText>
                     </TouchableOpacity> 
+                    <View style={{padding: 35}} />
+                    <TouchableOpacity style = {styles.button} onPress={handleBack}>
+                        <CustomText style={styles.buttonTitle}>Volver atrás</CustomText>
+                    </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
         </LinearGradient>
