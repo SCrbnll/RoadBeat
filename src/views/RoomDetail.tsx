@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Linking, BackHandler } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -34,6 +34,15 @@ const RoomDetail = () => {
         };
     
         fetchData();
+
+        const backAction = () => {
+          handlePress();
+          return true; 
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+      return () => backHandler.remove();
   }, []);
 
   const formatDate =  (fecha) => {

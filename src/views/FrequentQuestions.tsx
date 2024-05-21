@@ -1,5 +1,5 @@
-import { StyleSheet, View, TouchableOpacity } from "react-native"
-import React from "react"
+import { StyleSheet, View, TouchableOpacity, BackHandler } from "react-native"
+import React, { useEffect } from "react"
 import { useNavigation } from "@react-navigation/native";
 
 import CustomText from "../components/CustomText"
@@ -11,6 +11,14 @@ const FrequentQuestions = () => {
     const handlePress = () => {
         navigation.goBack()
       };
+    useEffect(() => {
+        const backAction = () => {
+            handlePress();
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        return () => backHandler.remove();
+    }, []);
 
     return (
         <View style={styles.container}>

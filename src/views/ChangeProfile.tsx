@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, TextInput } from "react-native"
+import { StyleSheet, View, TouchableOpacity, TextInput, BackHandler } from "react-native"
 import React from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
@@ -53,6 +53,15 @@ const ChangeProfile = () => {
             setClosed(userInfo.closed)
         }
         chargeRoomBossInfo();
+
+        const backAction = () => {
+            handleBack();
+            return true; 
+        };
+  
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+  
+        return () => backHandler.remove();
         }, []);
     
     const openModal = () => {

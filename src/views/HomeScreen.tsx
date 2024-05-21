@@ -1,5 +1,5 @@
-import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput } from 'react-native';
-import { useState } from 'react';
+import { StyleSheet, View, KeyboardAvoidingView, TouchableOpacity, TextInput, BackHandler } from 'react-native';
+import { useEffect, useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from '@react-navigation/native';
 
@@ -9,6 +9,7 @@ import Clock from '../components/Clock';
 import Line from '../components/Line';
 import CustomText from '../components/CustomText';
 import CustomModal from '../components/CustomModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const HomeScreen = () => {
     const [name, setName] = useState('');
@@ -17,6 +18,30 @@ const HomeScreen = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalTitle, setModalTitle] = useState('');
     const [modalMessage, setModalMessage] = useState('');
+    const [customModalVisible, setCustomModalVisible] = useState(Boolean);
+
+    useEffect(() => {
+        const backAction = () => {
+            logOut();
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        return () => backHandler.remove();
+    }, []);
+    
+    const logOut = () => {
+        setCustomModalVisible(true)
+        setModalTitle('Cerrar sesión')
+        setModalMessage('¿Estás seguro que deseas cerrar sesión?');
+        openModal();
+    };
+    
+      const handleConfirm = async () => {
+        await AsyncStorage.removeItem("user_password")
+        await AsyncStorage.removeItem("user_info")
+        await AsyncStorage.removeItem("user_id")
+        handlePress('Login');
+    };
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
@@ -26,7 +51,7 @@ const HomeScreen = () => {
         const currentDate = new Date();
         const year = currentDate.getFullYear();
         const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-        const day = (currentDate.getDay() + 1).toString().padStart(2, '0')
+        const day = currentDate.getDate().toString().padStart(2, '0');
         return(`${year}-${month}-${day}`);
     }
 
@@ -65,6 +90,7 @@ const HomeScreen = () => {
 
     const createRoom = async () => {
         if(name.length === 0) {
+            setCustomModalVisible(false)
             setModalTitle('Error')
             setModalMessage('Debes insertar el nombre de la sala');
             openModal();
@@ -127,6 +153,7 @@ const HomeScreen = () => {
 
     const joinRoom = async () => {
         if(joinCod.length === 0) {
+            setCustomModalVisible(false)
             setModalTitle('Error')
             setModalMessage('Debes insertar el código de la sala');
             openModal();
@@ -160,6 +187,7 @@ const HomeScreen = () => {
                         handlePress("RoomScreen")
                     }
                 } catch (error) {
+                    setCustomModalVisible(false)
                     setModalTitle('Error')
                     setModalMessage('El códido de la sala no es válido');
                     openModal();
@@ -171,12 +199,23 @@ const HomeScreen = () => {
     return (
         <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
             <View style={styles.container}>
+                
+            {customModalVisible ? 
+                <ConfirmModal
+                    visible={modalVisible}
+                    onClose={closeModal}
+                    onConfirm={handleConfirm}
+                    title={modalTitle}
+                    message={modalMessage}
+                />
+            : 
                 <CustomModal
                     visible={modalVisible}
                     onClose={closeModal}
                     title={modalTitle}
                     message={modalMessage}
                 />
+            }
                 <Clock />
                 <View style={{marginVertical: 25}}></View>
                 <Line />

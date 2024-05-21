@@ -1,5 +1,5 @@
-import { StyleSheet, View, TouchableOpacity } from "react-native"
-import React from "react"
+import { StyleSheet, View, TouchableOpacity, BackHandler } from "react-native"
+import React, { useEffect } from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
@@ -18,14 +18,23 @@ const ProfileDetail = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [modalMessage, setModalMessage] = useState('');
 
-    const handlePress = (screenName) => {
-        navigation.navigate(screenName as never);
-    };
+    useEffect(() => {
+        const backAction = () => {
+            logOut();
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        return () => backHandler.remove();
+    }, []);
 
     const logOut = () => {
         setModalTitle('Cerrar sesión')
         setModalMessage('¿Estás seguro que deseas cerrar sesión?');
         openModal();
+    };
+
+    const handlePress = (screenName) => {
+        navigation.navigate(screenName as never);
     };
 
     const openModal = () => {

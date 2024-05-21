@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, Image, TouchableOpacity, TextInput, Alert } from "react-native"
+import { StyleSheet, View, FlatList, Image, TouchableOpacity, TextInput, Alert, BackHandler } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -68,7 +68,20 @@ const RoomScreen = () => {
         };
 
         checkUserRole();
-    }, []);
+
+        const backAction = () => {
+            if (isHost) {
+                closeRoom();
+            } else {
+                leaveRoom();
+            }
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        return () => backHandler.remove();
+    }, [isHost]);
 
     const openModal = () => {
         setModalVisible(true);

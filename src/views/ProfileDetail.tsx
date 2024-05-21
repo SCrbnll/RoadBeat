@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, TextInput, Image } from "react-native"
+import { StyleSheet, View, TouchableOpacity, TextInput, Image, BackHandler } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -43,6 +43,15 @@ const ProfileDetail = () => {
             setClosed(userInfo.closed)
         }
         chargeRoomBossInfo();
+
+        const backAction = () => {
+            handlePress();
+            return true; 
+        };
+  
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+  
+        return () => backHandler.remove();
         }, []);
 
     const handleChooseProfileImage = async () => {
