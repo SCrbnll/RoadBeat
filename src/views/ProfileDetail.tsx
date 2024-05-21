@@ -8,6 +8,7 @@ import { Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
 import CustomText from "../components/CustomText"
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 const ProfileDetail = () => {
     const navigation = useNavigation();
@@ -60,7 +61,7 @@ const ProfileDetail = () => {
 
     const changeInfo = async () => {
         try {
-            const response = await fetch('http://10.0.2.2:8080/usuarios/changeprofile', {
+            const response = await fetch(`${API_URL_LOCAL}/usuarios/changeprofile`, {
                 method: 'PUT',
                 headers: {
                     Accept: 'application/json',
@@ -78,7 +79,7 @@ const ProfileDetail = () => {
                 }),
             });
     
-            const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
+            const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
             const users = await userInfo.json(); 
             const infoUser = JSON.stringify(users);
             await AsyncStorage.removeItem('user_info');

@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import CustomText from "../components/CustomText"
 import CustomModal from "../components/CustomModal";
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 const ChangeProfile = () => {
     const navigation = useNavigation();
@@ -72,7 +73,7 @@ const ChangeProfile = () => {
             try {
                 if(oldPassword == oldPasswordInput) {
                     if(newPasswordInput === newPasswordInput2){
-                        const response = await fetch('http://10.0.2.2:8080/usuarios/changepass/' + newPasswordInput, {
+                        const response = await fetch(`${API_URL_LOCAL}/usuarios/changepass/` + newPasswordInput, {
                             method: 'PUT',
                             headers: {
                                 Accept: 'application/json',
@@ -90,7 +91,7 @@ const ChangeProfile = () => {
                             }),
                         });
         
-                        const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
+                        const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
                         const users = await userInfo.json(); 
                         const infoUser = JSON.stringify(users);
                         await AsyncStorage.removeItem('user_info');

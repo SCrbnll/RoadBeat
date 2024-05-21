@@ -4,6 +4,7 @@ import Constants from 'expo-constants'
 import CustomText from "./CustomText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from 'react';
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 const HeaderRoomScreen = () => {
     const [name, setName] = useState('');
@@ -12,7 +13,7 @@ const HeaderRoomScreen = () => {
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
             const idSala = await AsyncStorage.getItem('room_id')
-            const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
+            const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + idSala);
             const room = await roomJson.json(); 
             setName(room.nombre);
             setAnfitrion(room.usuarios.username)

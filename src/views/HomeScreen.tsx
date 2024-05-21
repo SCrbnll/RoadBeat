@@ -3,6 +3,8 @@ import { useState } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from '@react-navigation/native';
 
+import { API_URL_LOCAL, API_URL_AZURE, } from '@env';
+
 import Clock from '../components/Clock';
 import Line from '../components/Line';
 import CustomText from '../components/CustomText';
@@ -30,7 +32,7 @@ const HomeScreen = () => {
 
     const generateRandomNumber = async () => {
         let randomNumber;
-        const response = await fetch('http://10.0.2.2:8080/codigosSalas/salas');
+        const response = await fetch(`${API_URL_LOCAL}/codigosSalas/salas`);
         const jsonData = await response.json();
         const codSalas = [];
         jsonData.map(item => {
@@ -71,7 +73,7 @@ const HomeScreen = () => {
                 const userInfoJson = await AsyncStorage.getItem('user_info')
                 const userInfo = JSON.parse(userInfoJson);
 
-                const response = await fetch('http://10.0.2.2:8080/salas', {
+                const response = await fetch(`${API_URL_LOCAL}/salas`, {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -84,14 +86,13 @@ const HomeScreen = () => {
                         fecha: currentDate()
                     }),
                 });
-
                 const idSala = await response.json(); 
                 await AsyncStorage.setItem('room_id', idSala.toString())
-                const roomJson = await fetch('http://10.0.2.2:8080/salas/' + idSala);
+                const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + idSala);
                 const room = await roomJson.json();     
 
                 if(idSala){
-                    const response = await fetch('http://10.0.2.2:8080/codigosSalas', {
+                    const response = await fetch(`${API_URL_LOCAL}/codigosSalas`, {
                         method: 'POST',
                         headers: {
                             Accept: 'application/json',
@@ -105,7 +106,7 @@ const HomeScreen = () => {
                     });
                     const codSala = await response.json(); 
                     await AsyncStorage.setItem('room_code', codSala.toString()) 
-                    const responseHistorial = await fetch('http://10.0.2.2:8080/historial', {
+                    const responseHistorial = await fetch(`${API_URL_LOCAL}/historial`, {
                             method: 'POST',
                             headers: {
                                 Accept: 'application/json',
@@ -130,7 +131,7 @@ const HomeScreen = () => {
             setModalMessage('Debes insertar el código de la sala');
             openModal();
         } else {
-            const roomJson = await fetch('http://10.0.2.2:8080/codigosSalas/codigo/' + joinCod);
+            const roomJson = await fetch(`${API_URL_LOCAL}/codigosSalas/codigo/` + joinCod);
             if(roomJson.ok){
                 try{
                     const room = await roomJson.json(); 
@@ -140,11 +141,11 @@ const HomeScreen = () => {
                     await AsyncStorage.setItem('room_id', room.salas.id.toString())
 
                     try{
-                        const existJson = await fetch('http://10.0.2.2:8080/historial/existe/' + room.salas.id + '/' + userInfo.id)
+                        const existJson = await fetch(`${API_URL_LOCAL}/historial/existe/` + room.salas.id + '/' + userInfo.id)
                         const exist = await existJson.json();
                         handlePress("RoomScreen")
                     } catch (error) {
-                        const response = await fetch('http://10.0.2.2:8080/historial', {
+                        const response = await fetch(`${API_URL_LOCAL}/historial`, {
                             method: 'POST',
                             headers: {
                                 Accept: 'application/json',

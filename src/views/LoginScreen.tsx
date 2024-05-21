@@ -7,6 +7,8 @@ import { useState, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SpotifyAPI from '../types/SpotifyData';
 
+import { API_URL_LOCAL, API_URL_AZURE, } from '@env';
+
 import CustomText from '../components/CustomText';
 import Line from '../components/Line';
 import CustomModal from '../components/CustomModal';
@@ -45,7 +47,7 @@ const LoginScreen = () => {
             openModal();
         } else {
             try {
-                const response = await fetch('http://10.0.2.2:8080/usuarios/login/' + email + '/' + password);
+                const response = await fetch(`${API_URL_LOCAL}/usuarios/login/` + email + '/' + password);
                 const users = await response.json(); 
                 if (!users.error || !users == null) {
                     const userInfo = JSON.stringify(users);

@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomText from "../components/CustomText"
 import SalaBox from "../components/RoomBox"
 import { useFocusEffect } from '@react-navigation/native';
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 const HistoryScreen = () => {
   const [data, setData] = useState();
@@ -13,7 +14,7 @@ const HistoryScreen = () => {
     React.useCallback(() => {
       const fetchData = async () => {
         const userId = await AsyncStorage.getItem('user_id');
-        const response = await fetch(`http://10.0.2.2:8080/historial/salasUsuario/${userId}`);
+        const response = await fetch(`${API_URL_LOCAL}/historial/salasUsuario/${userId}`);
         const jsonData = await response.json();
         setData(jsonData);
       };

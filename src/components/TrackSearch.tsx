@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import CustomText from "./CustomText"
 import { Entypo } from '@expo/vector-icons';
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 
 const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) => {
@@ -55,7 +56,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) =>
       const userInfo = JSON.parse(userInfoJson);
       let canciones:number = userInfo.canciones + 1
 
-      const response = await fetch('http://10.0.2.2:8080/usuarios/incrementSongs/' + userInfo.id, {
+      const response = await fetch(`${API_URL_LOCAL}/usuarios/incrementSongs/` + userInfo.id, {
         method: 'PUT',
         headers: {
           Accept: 'application/json',
@@ -73,7 +74,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) =>
         }),
       });
 
-      const result = await fetch('http://10.0.2.2:8080/usuarios/'+ userInfo.id);
+      const result = await fetch(`${API_URL_LOCAL}/usuarios/`+ userInfo.id);
       const users = await result.json(); 
       const infoUser = JSON.stringify(users);
       await AsyncStorage.removeItem('user_info');

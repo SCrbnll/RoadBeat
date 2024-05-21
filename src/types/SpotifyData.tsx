@@ -1,7 +1,6 @@
 import axios from 'axios';
+import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, RAPIDAPI_KEY, RAPIDAPI_HOST, } from '@env';
 
-const client_id = '27994d84d064403ea7a488ba6fbbfdab'
-const client_secret = 'cd3fb1113fdf4df6b4ba14146a44698c'
 let token: any
 
 class SpotifyAPI {
@@ -10,7 +9,7 @@ class SpotifyAPI {
         try {
             const response = await axios.post(
                 'https://accounts.spotify.com/api/token',
-                `grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`,
+                `grant_type=client_credentials&client_id=${SPOTIFY_CLIENT_ID}&client_secret=${SPOTIFY_CLIENT_SECRET}`,
             {
                 headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -54,13 +53,12 @@ class SpotifyAPI {
         trackLink = trackLink.replaceAll(':', '%3A');
         trackLink = trackLink.replaceAll('/', '%2F');
         console.log('PARSED URL: ' + trackLink);
-        // https%3A%2F%2Fopen.spotify.com%2Ftrack%2F58XWGx7KNNkKneHdprcprX
         const url = 'https://spotify-scraper.p.rapidapi.com/v1/track/download?track=' + trackLink;
         const options = {
           method: 'GET',
           headers: {
-            'X-RapidAPI-Key': 'afd5847009msh06e0f4959fd28a2p169defjsndc0c513ee5c4',
-            'X-RapidAPI-Host': 'spotify-scraper.p.rapidapi.com'
+            'X-RapidAPI-Key': RAPIDAPI_KEY,
+            'X-RapidAPI-Host': RAPIDAPI_HOST
           }
         };
         

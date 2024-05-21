@@ -14,6 +14,7 @@ import TrackQueue from "../components/TrackQueue";
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 
 const RoomScreen = () => {
@@ -49,7 +50,7 @@ const RoomScreen = () => {
             const userId = await AsyncStorage.getItem('user_id');
             const roomId = await AsyncStorage.getItem('room_id');
 
-            const response = await fetch(`http://10.0.2.2:8080/salas/${roomId}`);
+            const response = await fetch(`${API_URL_LOCAL}/salas/${roomId}`);
             const room = await response.json();
 
             if (room.usuarios.id == userId) {
@@ -188,7 +189,7 @@ const RoomScreen = () => {
 
     const leaveRoom = async () => {
         try {
-            const roomJson = await fetch('http://10.0.2.2:8080/salas/' + await AsyncStorage.getItem('room_id'))
+            const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + await AsyncStorage.getItem('room_id'))
             const room = await roomJson.json();
             setCustomModalVisible(true)
             setModalTitle('Abandonar sala')
@@ -261,9 +262,9 @@ const RoomScreen = () => {
         }
     }
     const handleConfirmAdmin = async () => {
-        const roomJson = await fetch('http://10.0.2.2:8080/salas/' + await AsyncStorage.getItem('room_id'))
+        const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + await AsyncStorage.getItem('room_id'))
         const room = await roomJson.json();
-        const response = await fetch('http://10.0.2.2:8080/codigosSalas/cerrada', {
+        const response = await fetch(`${API_URL_LOCAL}/codigosSalas/cerrada`, {
             method: 'PUT',
             headers: {
             Accept: 'application/json',

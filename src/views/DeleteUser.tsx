@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import CustomText from "../components/CustomText"
 import CustomModal from "../components/CustomModal";
+import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 const DeleteUser = () => {
     const navigation = useNavigation();
@@ -65,10 +66,10 @@ const DeleteUser = () => {
         } else {
             try {
                 if(oldPassword == oldPasswordInput) {
-                    const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
+                    const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
                     const users = await userInfo.json(); 
 
-                    const response = await fetch('http://10.0.2.2:8080/usuarios/changeprofile', {
+                    const response = await fetch(`${API_URL_LOCAL}/usuarios/changeprofile`, {
                         method: 'PUT',
                         headers: {
                             Accept: 'application/json',
@@ -86,7 +87,7 @@ const DeleteUser = () => {
                         }),
                     });
 
-                    const userInfo2 = await fetch('http://10.0.2.2:8080/usuarios/'+ id);
+                    const userInfo2 = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
                     const users2 = await userInfo2.json(); 
                     const infoUser = JSON.stringify(users2);
 

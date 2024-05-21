@@ -7,6 +7,7 @@ import CustomText from '../components/CustomText';
 
 import { Entypo } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
+import { API_URL_LOCAL, API_URL_AZURE } from '@env';
 
 const RoomDetail = () => {
   const [usuarioUsername, setUsuarioUsername] = useState("");
@@ -22,7 +23,7 @@ const RoomDetail = () => {
         const fetchData = async () => {
           try {
             const salaId = await AsyncStorage.getItem("sala_id");
-            const response = await fetch(`http://10.0.2.2:8080/historial/${salaId}`);
+            const response = await fetch(`${API_URL_LOCAL}/historial/${salaId}`);
             const jsonData = await response.json();
             setUsuarioUsername(jsonData.salas.usuarios.username);
             setFechaSala(formatDate(jsonData.salas.fecha));

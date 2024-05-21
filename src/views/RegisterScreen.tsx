@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomText from '../components/CustomText';
 import CustomModal from '../components/CustomModal';
 import Line from '../components/Line';
+import { API_URL_LOCAL, API_URL_AZURE } from '@env';
 
 const RegisterScreen = () => {
     const nameInputRef = useRef<TextInput>(null);
@@ -51,7 +52,7 @@ const RegisterScreen = () => {
             openModal();
         } else {
             try {
-                const response = await fetch('http://10.0.2.2:8080/usuarios', {
+                const response = await fetch(`${API_URL_LOCAL}/usuarios`, {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -70,7 +71,7 @@ const RegisterScreen = () => {
                 const idUser = await response.json(); 
                 await AsyncStorage.setItem('user_id', idUser.toString())
     
-                const userInfo = await fetch('http://10.0.2.2:8080/usuarios/'+ idUser);
+                const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ idUser);
                 const users = await userInfo.json(); 
                 const infoUser = JSON.stringify(users);
                 await AsyncStorage.setItem('user_info', infoUser);
