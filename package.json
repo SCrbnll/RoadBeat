@@ -29,6 +29,7 @@
     "expo-linking": "~6.2.2",
     "expo-status-bar": "~1.11.1",
     "expo-web-browser": "^12.8.2",
+    "express": "^4.19.2",
     "or": "^0.2.0",
     "patch-package": "^8.0.0",
     "qs": "^6.12.1",
@@ -44,6 +45,7 @@
     "react-native-screens": "~3.29.0",
     "react-native-snackbar": "^2.6.2",
     "react-native-webview": "^13.8.5",
+    "socket.io": "^4.7.5",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

@@ -5,4 +5,5 @@ declare module '@env' {
     export const SPOTIFY_CLIENT_SECRET: string;
     export const RAPIDAPI_KEY: string;
     export const RAPIDAPI_HOST: string;
+    export const SPOTIFY_USER_ID: string;
 }
