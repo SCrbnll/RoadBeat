@@ -47,8 +47,6 @@ const RoomScreen = () => {
         navigation.navigate(screenName as never);
     };
 
-    
-
     useEffect(() => {
         const chargeUsername = async () => {
             const userInfoJson = await AsyncStorage.getItem("user_info");
@@ -76,6 +74,36 @@ const RoomScreen = () => {
             socketRef.current.off('connect', onConnect);
         };
     }, [username]);
+
+    useEffect(() => {
+        const chargeCode = async () => {
+            const roomCode = await AsyncStorage.getItem("room_code");
+            setCode(roomCode);
+        }
+        chargeCode();
+
+        const onConnect = () => {
+            socketRef.current.emit('join_room', code)
+        };
+
+        const setupSocket = () => {
+            if (!socketRef.current.connected) {
+                socketRef.current.connect();
+            } else {
+                socketRef.current.emit('join_room', code)
+            }
+            socketRef.current.on('connect', onConnect);
+        };
+
+        setupSocket();
+
+        return () => {
+            socketRef.current.off('connect', onConnect);
+        };
+    }, [code]);
+
+    
+
     useEffect(() => {
         const checkUserRole = async () => {
             try {
@@ -92,9 +120,6 @@ const RoomScreen = () => {
                 }
 
                 await SpotifyAPI.getToken();
-                const roomCode = await AsyncStorage.getItem("room_code");
-                setCode(roomCode);
-
             } catch (error) {
                 console.error('Error al verificar el rol del usuario:', error);
             }
