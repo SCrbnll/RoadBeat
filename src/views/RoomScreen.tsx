@@ -3,8 +3,9 @@ import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect, useRef } from 'react';
-import SpotifyAPI from "../types/SpotifyData";
+import { socket } from '../utils/socket';
 
+import SpotifyAPI from "../types/SpotifyData";
 import CustomText from "../components/CustomText"
 import ConfirmModal from "../components/ConfirmModal";
 import CustomModal from "../components/CustomModal";
@@ -20,6 +21,8 @@ import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 const RoomScreen = () => {
     // GLOBAL
     const [isHost, setIsHost] = useState(Boolean);
+    const [username, setUsername] = useState('')
+    const socketRef = useRef(socket);
 
     // HEADER
     const navigation = useNavigation();
@@ -39,41 +42,71 @@ const RoomScreen = () => {
     // ADMIN INTERFACE
     const [code, setCode] = useState('');
 
-    
+
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
+
     
+
+    useEffect(() => {
+        const chargeUsername = async () => {
+            const userInfoJson = await AsyncStorage.getItem("user_info");
+            const userInfo = JSON.parse(userInfoJson);
+            setUsername(userInfo.username)
+        }
+        chargeUsername();
+
+        const onConnect = () => {
+            socketRef.current.emit('register_user', username);
+        };
+
+        const setupSocket = () => {
+            if (!socketRef.current.connected) {
+                socketRef.current.connect();
+            } else {
+                socketRef.current.emit('register_user', username);
+            }
+            socketRef.current.on('connect', onConnect);
+        };
+
+        setupSocket();
+
+        return () => {
+            socketRef.current.off('connect', onConnect);
+        };
+    }, [username]);
     useEffect(() => {
         const checkUserRole = async () => {
-        try {
-            const userId = await AsyncStorage.getItem('user_id');
-            const roomId = await AsyncStorage.getItem('room_id');
+            try {
+                const userId = await AsyncStorage.getItem('user_id');
+                const roomId = await AsyncStorage.getItem('room_id');
 
-            const response = await fetch(`${API_URL_LOCAL}/salas/${roomId}`);
-            const room = await response.json();
+                const response = await fetch(`${API_URL_LOCAL}/salas/${roomId}`);
+                const room = await response.json();
 
-            if (room.usuarios.id == userId) {
-                setIsHost(true);
-            } else{
-                setIsHost(false);
+                if (room.usuarios.id === userId) {
+                    setIsHost(true);
+                } else {
+                    setIsHost(false);
+                }
+
+                await SpotifyAPI.getToken();
+                const roomCode = await AsyncStorage.getItem("room_code");
+                setCode(roomCode);
+
+            } catch (error) {
+                console.error('Error al verificar el rol del usuario:', error);
             }
-
-            SpotifyAPI.getToken()
-            const roomCode = await AsyncStorage.getItem("room_code")
-            setCode(roomCode)
-        } catch (error) {
-            console.error('Error al verificar el rol del usuario:', error);
-        }
         };
 
         checkUserRole();
 
         const backAction = () => {
             if (isHost) {
-                closeRoom();
+                handleConfirmAdmin();
             } else {
-                leaveRoom();
+                handleConfirmUser();
             }
             return true;
         };
@@ -96,89 +129,92 @@ const RoomScreen = () => {
         setArtistName(artistName);
         setImageUrl(imageUrl);
     };
+    const playTrack = (track) => {
+        console.log(`Reproduciendo canción: ${track.name} por ${track.artist}`);
+    };
 
     // USER INTERFACE
     const userInterface = () => {
         return (
             <View>
                 <View style={styles.currentSongInfo}>
-                {imageUrl ? (
-                    <Image source={{ uri: imageUrl }} style={styles.image} />
-                ) : (
-                    <Image source={require('./../assets/images/logo.png')} style={styles.image} />
-                )}
-                <View style={{paddingHorizontal: 5}}/>
-                <View>
-                    <CustomText style={styles.actualTrack}>Canción actual</CustomText>
-                    {songName || artistName ? (
-                        <View style={styles.contentBox}>
-                            <CustomText style={styles.dataTrack}>{songName}</CustomText>
-                            <CustomText style={styles.dataTrack}>{artistName}</CustomText>
-                        </View>
+                    {imageUrl ? (
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
                     ) : (
-                        <View style={styles.contentBox}>
-                            <CustomText style={styles.dataTrack}>No hay ninguna canción reproduciéndose</CustomText>
-                        </View>
+                        <Image source={require('./../assets/images/logo.png')} style={styles.image} />
                     )}
-                    <CustomText style={styles.addedBy}>Agregada por Usuario1</CustomText>
+                    <View style={{ paddingHorizontal: 5 }} />
+                    <View>
+                        <CustomText style={styles.actualTrack}>Canción actual</CustomText>
+                        {songName || artistName ? (
+                            <View style={styles.contentBox}>
+                                <CustomText style={styles.dataTrack}>{songName}</CustomText>
+                                <CustomText style={styles.dataTrack}>{artistName}</CustomText>
+                            </View>
+                        ) : (
+                            <View style={styles.contentBox}>
+                                <CustomText style={styles.dataTrack}>No hay ninguna canción reproduciéndose</CustomText>
+                            </View>
+                        )}
+                        <CustomText style={styles.addedBy}>Agregada por Usuario1</CustomText>
+                    </View>
                 </View>
-            </View> 
-            <View style={styles.textInputLine} />
-            <View style={styles.playQueue}>
-                <View style={{flexDirection: "row"}}>
-                    <Entypo name="magnifying-glass" size={20} color="white" style={{alignSelf: 'center'}}/>
-                    <TextInput
-                        ref={searchedSongInputRef}
-                        style={styles.textInput}
-                        placeholder="¿Qué canción estás buscando?"
-                        placeholderTextColor="#7A7A7A"
-                        onChangeText={text => setSearchedSong(text)}
-                        value={searchedSong}
-                    />
-                    <TouchableOpacity style = {styles.searchButton} onPress={searchSong}>
-                        <CustomText style={styles.searchTitle}>Buscar</CustomText>
+                <View style={styles.textInputLine} />
+                <View style={styles.playQueue}>
+                    <View style={{ flexDirection: "row" }}>
+                        <Entypo name="magnifying-glass" size={20} color="white" style={{ alignSelf: 'center' }} />
+                        <TextInput
+                            ref={searchedSongInputRef}
+                            style={styles.textInput}
+                            placeholder="¿Qué canción estás buscando?"
+                            placeholderTextColor="#7A7A7A"
+                            onChangeText={text => setSearchedSong(text)}
+                            value={searchedSong}
+                        />
+                        <TouchableOpacity style={styles.searchButton} onPress={searchSong}>
+                            <CustomText style={styles.searchTitle}>Buscar</CustomText>
+                        </TouchableOpacity>
+                    </View>
+                    <View>
+                        {data.length > 0 ? (
+                            <View style={styles.queueBox}>
+                                <FlatList
+                                    data={data}
+                                    renderItem={({ item }) => <TrackSearch item={item} updateCurrentSong={updateCurrentSong} />}
+                                    keyExtractor={item => item.id.toString()}
+                                />
+                            </View>
+
+                        ) : (
+                            <View style={styles.queueBox}>
+                                <View style={styles.noSearchedSong}>
+                                    <FontAwesome5 name="ghost" size={52} color="white" style={styles.iconQueuBox} />
+                                    <CustomText style={styles.titleNoSearchedSong}>Escribe el nombre de la cancíón que deseas escuchar</CustomText>
+                                </View>
+                            </View>
+                        )}
+
+                    </View>
+                </View>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.button}>
+                        <Feather name="shuffle" size={20} color="white" style={{ left: 15 }} />
+                        <CustomText style={styles.buttonTitle}>Realizar votación</CustomText>
+                    </TouchableOpacity>
+                    <View style={{ padding: 5 }}></View>
+                    <TouchableOpacity style={styles.button}>
+                        <CustomText style={styles.buttonTitle}>Ver Canciones en cola</CustomText>
+                    </TouchableOpacity>
+                    <View style={{ padding: 20 }}></View>
+                    <TouchableOpacity style={styles.button} onPress={leaveRoom}>
+                        <CustomText style={styles.buttonTitle}>Abandonar sala</CustomText>
                     </TouchableOpacity>
                 </View>
-                <View>
-                    {data.length > 0 ? (
-                        <View style={styles.queueBox}>
-                            <FlatList
-                            data={data}
-                            renderItem={({ item }) => <TrackSearch item={item} updateCurrentSong={updateCurrentSong}/>}
-                            keyExtractor={item => item.id.toString()}
-                            />
-                        </View>
-                        
-                    ) : (
-                        <View style={styles.queueBox}>
-                            <View style={styles.noSearchedSong}>
-                                <FontAwesome5 name="ghost" size={52} color="white" style={styles.iconQueuBox}/>
-                                <CustomText style={styles.titleNoSearchedSong}>Escribe el nombre de la cancíón que deseas escuchar</CustomText>
-                            </View>
-                        </View>
-                    )}
-
-                </View>
-            </View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style = {styles.button}>
-                    <Feather name="shuffle" size={20} color="white" style={{left: 15}}/>
-                    <CustomText style={styles.buttonTitle}>Realizar votación</CustomText>
-                </TouchableOpacity>
-                <View style={{padding: 5}}></View>
-                <TouchableOpacity style = {styles.button}>
-                    <CustomText style={styles.buttonTitle}>Ver Canciones en cola</CustomText>
-                </TouchableOpacity>
-                <View style={{padding: 20}}></View>
-                <TouchableOpacity style = {styles.button}  onPress={leaveRoom}>
-                    <CustomText style={styles.buttonTitle}>Abandonar sala</CustomText>
-                </TouchableOpacity>
-            </View>
             </View>
         );
     }
     const searchSong = async () => {
-        if(searchedSong.trim().length > 0){
+        if (searchedSong.trim().length > 0) {
             try {
                 const searchResult = await SpotifyAPI.searchSongs(searchedSong);
                 const tracks = searchResult.tracks.items;
@@ -195,8 +231,10 @@ const RoomScreen = () => {
     }
 
     const handleConfirmUser = async () => {
+        const roomCode = await AsyncStorage.getItem('room_code');
         await AsyncStorage.removeItem("room_id")
         await AsyncStorage.removeItem("room_code")
+        socketRef.current.emit('leave_room', roomCode);
         handlePress('Main');
     };
 
@@ -208,7 +246,7 @@ const RoomScreen = () => {
             setModalTitle('Abandonar sala')
             setModalMessage('¿Estás seguro de querer abandonar la sala?');
             openModal();
-        } catch (error) {  
+        } catch (error) {
             console.log(error)
         }
     }
@@ -223,9 +261,9 @@ const RoomScreen = () => {
                 </View>
                 <View style={styles.currentSongInfoAdmin}>
                     <Image source={require('./../assets/images/logo.png')} style={styles.image} />
-                    <View style={{paddingHorizontal: 5}}/>
+                    <View style={{ paddingHorizontal: 5 }} />
                     <View>
-                    <CustomText style={styles.actualTrack}>Canción actual</CustomText>
+                        <CustomText style={styles.actualTrack}>Canción actual</CustomText>
                         {songName || artistName ? (
                             <View style={styles.contentBox}>
                                 <CustomText style={styles.dataTrack}>{songName}</CustomText>
@@ -238,7 +276,7 @@ const RoomScreen = () => {
                         )}
                         <CustomText style={styles.addedBy}>Agregada por Usuario1</CustomText>
                     </View>
-                </View> 
+                </View>
                 <View style={styles.textInputLineAdmin} />
                 <View style={styles.playQueueAdmin}>
                     <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
@@ -251,12 +289,12 @@ const RoomScreen = () => {
                     </View>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style = {styles.button}>
-                        <Feather name="shuffle" size={20} color="white" style={{left: 15}}/>
+                    <TouchableOpacity style={styles.button}>
+                        <Feather name="shuffle" size={20} color="white" style={{ left: 15 }} />
                         <CustomText style={styles.buttonTitle}>Saltar canción</CustomText>
                     </TouchableOpacity>
-                    <View style={{padding: 30}}></View>
-                    <TouchableOpacity style = {styles.button}  onPress={closeRoom}>
+                    <View style={{ padding: 30 }}></View>
+                    <TouchableOpacity style={styles.button} onPress={closeRoom}>
                         <CustomText style={styles.buttonTitle}>Cerrar sala</CustomText>
                     </TouchableOpacity>
                 </View>
@@ -270,7 +308,7 @@ const RoomScreen = () => {
             setModalTitle('Cerrar sala')
             setModalMessage('¿Estás seguro de que deseas cerrar la sala?');
             openModal();
-        } catch (error) {  
+        } catch (error) {
             console.log(error)
         }
     }
@@ -280,8 +318,8 @@ const RoomScreen = () => {
         const response = await fetch(`${API_URL_LOCAL}/codigosSalas/cerrada`, {
             method: 'PUT',
             headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 cerrada: true,
@@ -289,56 +327,58 @@ const RoomScreen = () => {
                 salas: room
             }),
         });
+        const roomCode = await AsyncStorage.getItem('room_code');
         await AsyncStorage.removeItem("room_id")
         await AsyncStorage.removeItem("room_code")
+        socketRef.current.emit('leave_room', roomCode);
         handlePress('Main');
     };
 
-    
+
     return (
         <View style={styles.container}>
             {
-            customModalVisible ? 
-                <ConfirmModal
-                    visible={modalVisible}
-                    onClose={closeModal}
-                    onConfirm={isHost ? handleConfirmAdmin : handleConfirmUser}
-                    title={modalTitle}
-                    message={modalMessage}
-                />
-            :
-                <CustomModal
-                    visible={modalVisible}
-                    onClose={closeModal}
-                    title={modalTitle}
-                    message={modalMessage}
-                />
+                customModalVisible ?
+                    <ConfirmModal
+                        visible={modalVisible}
+                        onClose={closeModal}
+                        onConfirm={isHost ? handleConfirmAdmin : handleConfirmUser}
+                        title={modalTitle}
+                        message={modalMessage}
+                    />
+                    :
+                    <CustomModal
+                        visible={modalVisible}
+                        onClose={closeModal}
+                        title={modalTitle}
+                        message={modalMessage}
+                    />
             }
             {isHost ? adminInterface() : userInterface()}
-        </View>  
+        </View>
     )
 };
 
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#210000',
-        flex: 1,  
+        flex: 1,
     },
-    title:{
+    title: {
         fontSize: 14,
         fontFamily: 'Krona One',
         top: 25,
         color: '#FFFFFF',
         left: -80,
     },
-    dataTrack:{
+    dataTrack: {
         fontSize: 12,
         fontFamily: 'Krona One',
         color: '#FFFFFF',
         left: 20,
         top: 15
     },
-    addedBy:{
+    addedBy: {
         fontSize: 10,
         fontFamily: 'Krona One',
         color: '#7A7A7A',
@@ -365,15 +405,15 @@ const styles = StyleSheet.create({
         top: 10,
     },
     textInputLine: {
-        borderBottomWidth: 2, 
-        borderBottomColor: '#7A7A7A', 
+        borderBottomWidth: 2,
+        borderBottomColor: '#7A7A7A',
         width: '90%',
         alignSelf: 'center',
         top: 40
     },
     textInputLineAdmin: {
-        borderBottomWidth: 2, 
-        borderBottomColor: '#7A7A7A', 
+        borderBottomWidth: 2,
+        borderBottomColor: '#7A7A7A',
         width: '90%',
         alignSelf: 'center',
         top: 50
@@ -451,8 +491,8 @@ const styles = StyleSheet.create({
         top: 80,
     },
     textInput: {
-        backgroundColor: 'transparent',  
-        fontSize: 14, 
+        backgroundColor: 'transparent',
+        fontSize: 14,
         color: '#FFFFFF',
         left: 20,
         alignSelf: 'center',
@@ -469,7 +509,7 @@ const styles = StyleSheet.create({
         top: 50,
         alignSelf: 'center',
         left: 30,
-        opacity: 0.5 
+        opacity: 0.5
     },
     titleNoSearchedSong: {
         color: '#FFFFFF',

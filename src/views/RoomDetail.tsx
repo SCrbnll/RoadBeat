@@ -76,9 +76,11 @@ const RoomDetail = () => {
         </View>
         <View style={{ marginVertical: 20 }} />
         <View style={{flexDirection: 'row', marginLeft: 'auto', marginRight: 'auto'}}>
-          <TouchableOpacity style = {styles.buttonLink} onPress={() => Linking.openURL(playlist)}>
-            <CustomText style={styles.buttonTitleLink}>Ver playlist</CustomText>
-            <Feather name="external-link" size={20} color="white" style={{marginLeft: 'auto'}}/>
+          {/* Ver playlist link */}
+          {/* <TouchableOpacity style = {styles.buttonLink} onPress={() => Linking.openURL(playlist)}> */}
+          <TouchableOpacity style = {styles.buttonLink}>
+            <CustomText style={styles.buttonTitle}>Próximamente...</CustomText>
+            {/* <Feather name="external-link" size={20} color="white" style={{marginLeft: 'auto'}}/> */}
           </TouchableOpacity>
         </View>
       </View>
