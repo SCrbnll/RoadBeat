@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect, useRef } from 'react';
 import { socket } from '../utils/socket';
+import { Audio } from 'expo-av';
 
 import SpotifyAPI from "../types/SpotifyData";
 import CustomText from "../components/CustomText"
@@ -17,19 +18,27 @@ import { Entypo } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
+interface Song {
+    name: string;
+    artists: string;
+    url: string;
+    addedBy: string
+}
 
 const RoomScreen = () => {
     // GLOBAL
     const [isHost, setIsHost] = useState(Boolean);
     const [username, setUsername] = useState('')
     const socketRef = useRef(socket);
+    const [sound, setSound] = useState<Audio.Sound | undefined>();
+    const [currentSongIndex, setCurrentSongIndex] = useState(0);
+
 
     // HEADER
     const navigation = useNavigation();
-    const [songName, setSongName] = useState('');
-    const [artistName, setArtistName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [data, setData] = useState<TrackItem[]>([]);
+    const [currentSong, setCurrentSong] = useState<Song | null>(null);
 
     // USER INTERFACE
     const [searchedSong, setSearchedSong] = useState('');
@@ -41,13 +50,14 @@ const RoomScreen = () => {
 
     // ADMIN INTERFACE
     const [code, setCode] = useState('');
-    const [playlist, setPlaylist] = useState();
+    const [playlist, setPlaylist] = useState([]);
 
 
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
 
+    // CARGAR INFORMACIÓN INICIAL Y REGISTRAR USUARIO SOCKET SERVER
     useEffect(() => {
         const chargeUsername = async () => {
             const userInfoJson = await AsyncStorage.getItem("user_info");
@@ -76,55 +86,18 @@ const RoomScreen = () => {
         };
     }, [username]);
 
-    useEffect(() => {
-        const chargeCode = async () => {
-            const roomCode = await AsyncStorage.getItem("room_code");
-            setCode(roomCode);
-        }
-        chargeCode();
-
-        const onConnect = () => {
-            socketRef.current.emit('join_room', code)
-        };
-
-        const setupSocket = () => {
-            if (!socketRef.current.connected) {
-                socketRef.current.connect();
-            } else {
-                socketRef.current.emit('join_room', code)
-            }
-            socketRef.current.on('connect', onConnect);
-        };
-
-        setupSocket();
-
-        return () => {
-            socketRef.current.off('connect', onConnect);
-        };
-    }, [code]);
-
-    useEffect(() => {
-        // Enviar evento al servidor para solicitar la lista de reproducción
-        socket.emit('send_playlist', code);
-
-        // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
-        socket.on('playlist_data', (data) => {
-            setPlaylist(data);
-        });
-    }, []);
-
-    
-
+    // COMPROBACIÓN USUARIO ES HOST O NO ES HOST
     useEffect(() => {
         const checkUserRole = async () => {
             try {
                 const userId = await AsyncStorage.getItem('user_id');
                 const roomId = await AsyncStorage.getItem('room_id');
 
-                const response = await fetch(`${API_URL_LOCAL}/salas/${roomId}`);
+                const response = await fetch(`${API_URL_AZURE}/salas/${roomId}`);
+
                 const room = await response.json();
 
-                if (room.usuarios.id === userId) {
+                if (room.usuarios.id == userId) {
                     setIsHost(true);
                 } else {
                     setIsHost(false);
@@ -152,21 +125,113 @@ const RoomScreen = () => {
         return () => backHandler.remove();
     }, [isHost]);
 
+    // UNIÓN USUARIO Y ROOM EN SOCKET SERVER
+    useEffect(() => {
+        const chargeCode = async () => {
+            const roomCode = await AsyncStorage.getItem("room_code");
+            setCode(roomCode);
+        }
+        chargeCode();
+
+        const onConnect = () => {
+            socketRef.current.emit('join_room', code)
+        };
+
+        const setupSocket = () => {
+            if (!socketRef.current.connected) {
+                socketRef.current.connect();
+            } else {
+                socketRef.current.emit('join_room', code)
+            }
+            socketRef.current.on('connect', onConnect);
+        };
+
+        setupSocket();
+
+        return () => {
+            socketRef.current.off('connect', onConnect);
+        };
+    }, [code]);
+
+    // CARGAR INFORMACIÓN DE CANCIONES EN COLA SOCKET SERVER
+    useEffect(() => {
+        // Enviar evento al servidor para solicitar la lista de reproducción
+        socket.emit('send_playlist', code);
+
+        // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
+        socket.on('playlist_data', (data) => {
+            setPlaylist(data);
+        });
+    }, [playlist]);
+
+
+    // GESTIONAR REPRODUCCIÓN DE CANCIONES
+    // useEffect(() => {
+    //     let isMounted = true;
+
+    //     // Función para cargar y reproducir la canción
+    //     const loadAndPlaySong = async (url) => {
+    //         try {
+    //             // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
+    //             const trackMp3 = await SpotifyAPI.getTrackUrl(url);
+    //             const jsonData = JSON.parse(trackMp3);
+    //             const youtubeAudio = jsonData.youtubeVideo.audio[0];
+    //             const youtubeAudioUrl = youtubeAudio.url;
+
+    //             // Crear y cargar el sonido desde la URL obtenida
+    //             console.log('Loading Sound');
+    //             const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
+
+    //             // Si el componente está montado, establecer el sonido
+    //             if (isMounted) {
+    //                 setSound(sound);
+    //                 console.log('Playing Sound');
+    //                 await sound.playAsync();
+    //             }
+    //         } catch (error) {
+    //             console.error('Error al cargar o reproducir la canción:', error);
+    //         }
+    //     };
+
+    //     // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
+    //     if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
+    //         const song = playlist[currentSongIndex];
+    //         loadAndPlaySong(song.url);
+    //     }
+
+    //     // Limpieza: detener el sonido al desmontar el componente
+    //     return () => {
+    //         isMounted = false;
+    //         if (sound) {
+    //             sound.unloadAsync();
+    //         }
+    //     };
+    // }, [currentSongIndex]);
+
+    {
+        /*
+        const trackMp3 = await SpotifyAPI.getTrackUrl(url)
+        const jsonData = JSON.parse(trackMp3);
+        console.log(jsonData)
+        const youtubeAudio = jsonData.youtubeVideo.audio[0];
+        const youtubeAudioUrl = youtubeAudio.url;
+        console.log(youtubeAudioUrl);
+
+        console.log('Loading Sound');
+        const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
+        setSound(sound);
+
+        console.log('Playing Sound');
+        await sound.playAsync();
+        */
+    }
+
     const openModal = () => {
         setModalVisible(true);
     };
 
     const closeModal = () => {
         setModalVisible(false);
-    };
-
-    const updateCurrentSong = (songName, artistName, imageUrl) => {
-        setSongName(songName);
-        setArtistName(artistName);
-        setImageUrl(imageUrl);
-    };
-    const playTrack = (track) => {
-        console.log(`Reproduciendo canción: ${track.name} por ${track.artist}`);
     };
 
     // USER INTERFACE
@@ -182,17 +247,19 @@ const RoomScreen = () => {
                     <View style={{ paddingHorizontal: 5 }} />
                     <View>
                         <CustomText style={styles.actualTrack}>Canción actual</CustomText>
-                        {songName || artistName ? (
+                        {currentSong ? (
                             <View style={styles.contentBox}>
-                                <CustomText style={styles.dataTrack}>{songName}</CustomText>
-                                <CustomText style={styles.dataTrack}>{artistName}</CustomText>
+                                <CustomText style={styles.dataTrack}>{currentSong.name}</CustomText>
+                                <CustomText style={styles.dataTrack}>{currentSong.artists}</CustomText>
                             </View>
                         ) : (
                             <View style={styles.contentBox}>
                                 <CustomText style={styles.dataTrack}>No hay ninguna canción reproduciéndose</CustomText>
                             </View>
                         )}
-                        <CustomText style={styles.addedBy}>Agregada por Usuario1</CustomText>
+                        {currentSong && currentSong.addedBy ? (
+                            <CustomText style={styles.addedBy}>Agregada por {currentSong.addedBy}</CustomText>
+                        ) : null}
                     </View>
                 </View>
                 <View style={styles.textInputLine} />
@@ -216,7 +283,7 @@ const RoomScreen = () => {
                             <View style={styles.queueBox}>
                                 <FlatList
                                     data={data}
-                                    renderItem={({ item }) => <TrackSearch item={item} updateCurrentSong={updateCurrentSong} socket={socket} username={username} />}
+                                    renderItem={({ item }) => <TrackSearch item={item} socket={socket} username={username} />}
                                     keyExtractor={item => item.id.toString()}
                                 />
                             </View>
@@ -249,10 +316,12 @@ const RoomScreen = () => {
             </View>
         );
     }
+
     const queueScreen = async () => {
         await AsyncStorage.setItem('playlist', JSON.stringify(playlist));
         handlePress('QueueScreen')
     }
+
     const searchSong = async () => {
         if (searchedSong.trim().length > 0) {
             try {
@@ -280,7 +349,7 @@ const RoomScreen = () => {
 
     const leaveRoom = async () => {
         try {
-            const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + await AsyncStorage.getItem('room_id'))
+            const roomJson = await fetch(`${API_URL_AZURE}/salas/` + await AsyncStorage.getItem('room_id'))
             const room = await roomJson.json();
             setCustomModalVisible(true)
             setModalTitle('Abandonar sala')
@@ -304,17 +373,19 @@ const RoomScreen = () => {
                     <View style={{ paddingHorizontal: 5 }} />
                     <View>
                         <CustomText style={styles.actualTrack}>Canción actual</CustomText>
-                        {songName || artistName ? (
+                        {currentSong && currentSong.name && currentSong.artists ? (
                             <View style={styles.contentBox}>
-                                <CustomText style={styles.dataTrack}>{songName}</CustomText>
-                                <CustomText style={styles.dataTrack}>{artistName}</CustomText>
+                                <CustomText style={styles.dataTrack}>{currentSong.name}</CustomText>
+                                <CustomText style={styles.dataTrack}>{currentSong.artists}</CustomText>
                             </View>
                         ) : (
                             <View style={styles.contentBox}>
                                 <CustomText style={styles.dataTrack}>No hay ninguna canción reproduciéndose</CustomText>
                             </View>
                         )}
-                        <CustomText style={styles.addedBy}>Agregada por Usuario1</CustomText>
+                        {currentSong && currentSong.addedBy ? (
+                            <CustomText style={styles.addedBy}>Agregada por {currentSong.addedBy}</CustomText>
+                        ) : null}
                     </View>
                 </View>
                 <View style={styles.textInputLineAdmin} />
@@ -352,10 +423,11 @@ const RoomScreen = () => {
             console.log(error)
         }
     }
+
     const handleConfirmAdmin = async () => {
-        const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + await AsyncStorage.getItem('room_id'))
+        const roomJson = await fetch(`${API_URL_AZURE}/salas/` + await AsyncStorage.getItem('room_id'))
         const room = await roomJson.json();
-        const response = await fetch(`${API_URL_LOCAL}/codigosSalas/cerrada`, {
+        const response = await fetch(`${API_URL_AZURE}/codigosSalas/cerrada`, {
             method: 'PUT',
             headers: {
                 Accept: 'application/json',

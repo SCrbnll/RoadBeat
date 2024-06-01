@@ -13,7 +13,7 @@ const HeaderRoomScreen = () => {
     useEffect(() => {
         const chargeRoomBossInfo = async () => {
             const idSala = await AsyncStorage.getItem('room_id')
-            const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + idSala);
+            const roomJson = await fetch(`${API_URL_AZURE}/salas/` + idSala);
             const room = await roomJson.json(); 
             setName(room.nombre);
             setAnfitrion(room.usuarios.username)

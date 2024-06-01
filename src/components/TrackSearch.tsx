@@ -1,7 +1,5 @@
 import { StyleSheet, View, Image } from "react-native"
-import React, { useEffect, useState } from 'react';
 import SpotifyAPI from "../types/SpotifyData";
-import { Audio } from 'expo-av';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Socket } from 'socket.io-client';
 
@@ -12,45 +10,15 @@ import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 interface TrackSearchProps {
   item: TrackItem;
-  updateCurrentSong: (songName: string, artistName: string, imageUrl: string) => void;
   socket: Socket;
   username: string;
 }
 
-const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, socket, username }) => {
-  const [sound, setSound] = useState<Audio.Sound | undefined>();
+const TrackSearch: React.FC<TrackSearchProps> = ({ item, socket, username }) => {
 
-  useEffect(() => {
-    return sound
-      ? () => {
-        console.log('Unloading Sound');
-        sound.unloadAsync();
-      }
-      : undefined;
-  }, [sound]
-  );
-
-  const getUrl = async (url: string) => {
+  const addSongServer = async (url: string) => {
     try {
       console.log(url)
-      {
-        /*
-        const trackMp3 = await SpotifyAPI.getTrackUrl(url)
-        const jsonData = JSON.parse(trackMp3);
-        console.log(jsonData)
-        const youtubeAudio = jsonData.youtubeVideo.audio[0];
-        const youtubeAudioUrl = youtubeAudio.url;
-        console.log(youtubeAudioUrl);
-
-        console.log('Loading Sound');
-        const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
-        setSound(sound);
-
-        console.log('Playing Sound');
-        await sound.playAsync();
-        */
-      }
-      updateCurrentSong(item.name, item.artists.map(artist => artist.name).join(', '), item.album.images[0].url);
       incrementSongsUser()
       // Emitir evento al servidor para agregar canción a la cola
       const codeSala = await AsyncStorage.getItem('room_code');
@@ -58,11 +26,11 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, sock
         name: item.name,
         artists: item.artists.map(artist => artist.name).join(', '),
         url: item.external_urls.spotify,
-        addedBy: username // Agregar el nombre del usuario que añadió la canción
+        addedBy: username 
       });
 
     } catch (error) {
-      console.error('Error al cargar o reproducir el sonido:', error);
+      console.error(error);
     }
   }
 
@@ -71,7 +39,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, sock
     const userInfo = JSON.parse(userInfoJson);
     let canciones: number = userInfo.canciones + 1
 
-    const response = await fetch(`${API_URL_LOCAL}/usuarios/incrementSongs/` + userInfo.id, {
+    const response = await fetch(`${API_URL_AZURE}/usuarios/incrementSongs/` + userInfo.id, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
@@ -89,7 +57,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, sock
       }),
     });
 
-    const result = await fetch(`${API_URL_LOCAL}/usuarios/` + userInfo.id);
+    const result = await fetch(`${API_URL_AZURE}/usuarios/` + userInfo.id);
     const users = await result.json();
     const infoUser = JSON.stringify(users);
     await AsyncStorage.removeItem('user_info');
@@ -98,7 +66,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, sock
 
   const checkPlaylist = async () => {
     const idSala = await AsyncStorage.getItem('room_id')
-    const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + idSala);
+    const roomJson = await fetch(`${API_URL_AZURE}/salas/` + idSala);
     const room = await roomJson.json();
     if (room.linkPlaylist == 'no playlist') {
       const nameRoom = room.nombre
@@ -121,8 +89,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, sock
           color="white"
           style={styles.addIcon}
           onPress={() => {
-            updateCurrentSong(item.name, item.artists.map(artist => artist.name).join(', '), item.album.images[0].url);
-            getUrl(item.external_urls.spotify);
+            addSongServer(item.external_urls.spotify);
           }}
         />
       </View>

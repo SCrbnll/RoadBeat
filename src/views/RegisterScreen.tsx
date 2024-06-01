@@ -52,7 +52,7 @@ const RegisterScreen = () => {
             openModal();
         } else {
             try {
-                const response = await fetch(`${API_URL_LOCAL}/usuarios`, {
+                const response = await fetch(`${API_URL_AZURE}/usuarios`, {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -71,7 +71,7 @@ const RegisterScreen = () => {
                 const idUser = await response.json(); 
                 await AsyncStorage.setItem('user_id', idUser.toString())
     
-                const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ idUser);
+                const userInfo = await fetch(`${API_URL_AZURE}/usuarios/`+ idUser);
                 const users = await userInfo.json(); 
                 const infoUser = JSON.stringify(users);
                 await AsyncStorage.setItem('user_info', infoUser);

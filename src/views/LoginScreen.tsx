@@ -47,7 +47,7 @@ const LoginScreen = () => {
             openModal();
         } else {
             try {
-                const response = await fetch(`${API_URL_LOCAL}/usuarios/login/` + email + '/' + password);
+                const response = await fetch(`${API_URL_AZURE}/usuarios/login/` + email + '/' + password);
                 const users = await response.json(); 
                 if (!users.error || !users == null) {
                     const userInfo = JSON.stringify(users);

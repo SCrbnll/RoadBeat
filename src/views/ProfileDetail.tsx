@@ -70,7 +70,7 @@ const ProfileDetail = () => {
 
     const changeInfo = async () => {
         try {
-            const response = await fetch(`${API_URL_LOCAL}/usuarios/changeprofile`, {
+            const response = await fetch(`${API_URL_AZURE}/usuarios/changeprofile`, {
                 method: 'PUT',
                 headers: {
                     Accept: 'application/json',
@@ -88,7 +88,7 @@ const ProfileDetail = () => {
                 }),
             });
     
-            const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
+            const userInfo = await fetch(`${API_URL_AZURE}/usuarios/`+ id);
             const users = await userInfo.json(); 
             const infoUser = JSON.stringify(users);
             await AsyncStorage.removeItem('user_info');

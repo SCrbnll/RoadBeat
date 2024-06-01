@@ -82,7 +82,7 @@ const ChangeProfile = () => {
             try {
                 if(oldPassword == oldPasswordInput) {
                     if(newPasswordInput === newPasswordInput2){
-                        const response = await fetch(`${API_URL_LOCAL}/usuarios/changepass/` + newPasswordInput, {
+                        const response = await fetch(`${API_URL_AZURE}/usuarios/changepass/` + newPasswordInput, {
                             method: 'PUT',
                             headers: {
                                 Accept: 'application/json',
@@ -100,7 +100,7 @@ const ChangeProfile = () => {
                             }),
                         });
         
-                        const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
+                        const userInfo = await fetch(`${API_URL_AZURE}/usuarios/`+ id);
                         const users = await userInfo.json(); 
                         const infoUser = JSON.stringify(users);
                         await AsyncStorage.removeItem('user_info');

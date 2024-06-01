@@ -75,10 +75,10 @@ const DeleteUser = () => {
         } else {
             try {
                 if(oldPassword == oldPasswordInput) {
-                    const userInfo = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
+                    const userInfo = await fetch(`${API_URL_AZURE}/usuarios/`+ id);
                     const users = await userInfo.json(); 
 
-                    const response = await fetch(`${API_URL_LOCAL}/usuarios/changeprofile`, {
+                    const response = await fetch(`${API_URL_AZURE}/usuarios/changeprofile`, {
                         method: 'PUT',
                         headers: {
                             Accept: 'application/json',
@@ -96,7 +96,7 @@ const DeleteUser = () => {
                         }),
                     });
 
-                    const userInfo2 = await fetch(`${API_URL_LOCAL}/usuarios/`+ id);
+                    const userInfo2 = await fetch(`${API_URL_AZURE}/usuarios/`+ id);
                     const users2 = await userInfo2.json(); 
                     const infoUser = JSON.stringify(users2);
 

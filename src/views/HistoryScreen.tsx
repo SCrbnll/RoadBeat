@@ -19,7 +19,7 @@ const HistoryScreen = () => {
     React.useCallback(() => {
       const fetchData = async () => {
         const userId = await AsyncStorage.getItem('user_id');
-        const response = await fetch(`${API_URL_LOCAL}/historial/salasUsuario/${userId}`);
+        const response = await fetch(`${API_URL_AZURE}/historial/salasUsuario/${userId}`);
         const jsonData = await response.json();
         setData(jsonData);
       };

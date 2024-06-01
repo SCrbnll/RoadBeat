@@ -23,7 +23,7 @@ const RoomDetail = () => {
         const fetchData = async () => {
           try {
             const salaId = await AsyncStorage.getItem("sala_id");
-            const response = await fetch(`${API_URL_LOCAL}/historial/${salaId}`);
+            const response = await fetch(`${API_URL_AZURE}/historial/${salaId}`);
             const jsonData = await response.json();
             setUsuarioUsername(jsonData.salas.usuarios.username);
             setFechaSala(formatDate(jsonData.salas.fecha));

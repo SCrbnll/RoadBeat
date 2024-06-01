@@ -3,13 +3,9 @@ import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect, useRef } from 'react';
-import { socket } from '../utils/socket';
 
-import SpotifyAPI from "../types/SpotifyData";
 import CustomText from "../components/CustomText"
 import TrackQueue from "../components/TrackQueue";
-
-import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 interface Track {
     addedBy: string;
