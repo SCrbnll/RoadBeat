@@ -3,13 +3,21 @@ import React, { useEffect, useState } from 'react';
 import SpotifyAPI from "../types/SpotifyData";
 import { Audio } from 'expo-av';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Socket } from 'socket.io-client';
 
 import CustomText from "./CustomText"
 import { Entypo } from '@expo/vector-icons';
 import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
 
-const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) => {
+interface TrackSearchProps {
+  item: TrackItem;
+  updateCurrentSong: (songName: string, artistName: string, imageUrl: string) => void;
+  socket: Socket;
+  username: string;
+}
+
+const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong, socket, username }) => {
   const [sound, setSound] = useState<Audio.Sound | undefined>();
 
   useEffect(() => {
@@ -44,6 +52,14 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) =>
       }
       updateCurrentSong(item.name, item.artists.map(artist => artist.name).join(', '), item.album.images[0].url);
       incrementSongsUser()
+      // Emitir evento al servidor para agregar canción a la cola
+      const codeSala = await AsyncStorage.getItem('room_code');
+      socket.emit('add_to_playlist', codeSala, {
+        name: item.name,
+        artists: item.artists.map(artist => artist.name).join(', '),
+        url: item.external_urls.spotify,
+        addedBy: username // Agregar el nombre del usuario que añadió la canción
+      });
 
     } catch (error) {
       console.error('Error al cargar o reproducir el sonido:', error);
@@ -84,7 +100,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) =>
     const idSala = await AsyncStorage.getItem('room_id')
     const roomJson = await fetch(`${API_URL_LOCAL}/salas/` + idSala);
     const room = await roomJson.json();
-    if(room.linkPlaylist == 'no playlist'){
+    if (room.linkPlaylist == 'no playlist') {
       const nameRoom = room.nombre
       const descriptionRoom = `Anfitrión: ${room.usuarios.username} - ${room.fecha}`
       SpotifyAPI.createPlaylist(nameRoom, descriptionRoom)
@@ -96,8 +112,8 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, updateCurrentSong }) =>
       <Image source={{ uri: item.album.images[0].url }} style={styles.image} />
       <View style={{ flexDirection: 'row' }}>
         <View style={{ flexDirection: 'column' }}>
-          <CustomText style={styles.nameTrack}>{item.name}</CustomText>
-          <CustomText style={styles.artistTrack}>{item.artists.map(artist => artist.name).join(', ')}</CustomText>
+          <CustomText style={styles.nameTrack} numberOfLines={1} ellipsizeMode="tail">{item.name}</CustomText>
+          <CustomText style={styles.artistTrack} numberOfLines={1} ellipsizeMode="tail">{item.artists.map(artist => artist.name).join(', ')}</CustomText>
         </View>
         <Entypo
           name="add-to-list"

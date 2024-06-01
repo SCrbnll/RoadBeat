@@ -1,17 +1,27 @@
 import { StyleSheet, View, Image } from "react-native"
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import CustomText from "./CustomText"
+import SpotifyAPI from "../types/SpotifyData";
 
 
 const TrackQueue = ({ item }) => {
+  const [img, setImg] = useState('')
+  useEffect(() => {
+    const chargeImage = async () => {
+      const trackId = item.url.substring(item.url.lastIndexOf('/') + 1);
+      let trackUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl
+      setImg(trackUrl)
+    }
+    chargeImage()
+  }, []);
     return (
         <View style={styles.contentBox}>
-          <Image source={require('./../assets/images/pfp.png')} style={styles.image} />
+          <Image source={img ? {uri: img} : require('./../assets/images/logo.png')} style={styles.image} />
           <View style={{flexDirection: 'column'}}>
             <CustomText style={styles.dataTrack}>{item.name}</CustomText>
-            <CustomText style={styles.dataTrack}>{item.author}</CustomText>
-            <CustomText style={styles.addedBy}>{item.added}</CustomText>
+            <CustomText style={styles.dataTrack}>{item.artists}</CustomText>
+            <CustomText style={styles.addedBy}>Agregada por {item.addedBy}</CustomText>
           </View>
         </View>
     );

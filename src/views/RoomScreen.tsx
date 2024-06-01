@@ -41,6 +41,7 @@ const RoomScreen = () => {
 
     // ADMIN INTERFACE
     const [code, setCode] = useState('');
+    const [playlist, setPlaylist] = useState();
 
 
     const handlePress = (screenName) => {
@@ -101,6 +102,16 @@ const RoomScreen = () => {
             socketRef.current.off('connect', onConnect);
         };
     }, [code]);
+
+    useEffect(() => {
+        // Enviar evento al servidor para solicitar la lista de reproducción
+        socket.emit('send_playlist', code);
+
+        // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
+        socket.on('playlist_data', (data) => {
+            setPlaylist(data);
+        });
+    }, []);
 
     
 
@@ -205,7 +216,7 @@ const RoomScreen = () => {
                             <View style={styles.queueBox}>
                                 <FlatList
                                     data={data}
-                                    renderItem={({ item }) => <TrackSearch item={item} updateCurrentSong={updateCurrentSong} />}
+                                    renderItem={({ item }) => <TrackSearch item={item} updateCurrentSong={updateCurrentSong} socket={socket} username={username} />}
                                     keyExtractor={item => item.id.toString()}
                                 />
                             </View>
@@ -227,7 +238,7 @@ const RoomScreen = () => {
                         <CustomText style={styles.buttonTitle}>Realizar votación</CustomText>
                     </TouchableOpacity>
                     <View style={{ padding: 5 }}></View>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={queueScreen}>
                         <CustomText style={styles.buttonTitle}>Ver Canciones en cola</CustomText>
                     </TouchableOpacity>
                     <View style={{ padding: 20 }}></View>
@@ -237,6 +248,10 @@ const RoomScreen = () => {
                 </View>
             </View>
         );
+    }
+    const queueScreen = async () => {
+        await AsyncStorage.setItem('playlist', JSON.stringify(playlist));
+        handlePress('QueueScreen')
     }
     const searchSong = async () => {
         if (searchedSong.trim().length > 0) {
@@ -307,9 +322,9 @@ const RoomScreen = () => {
                     <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
                     <View style={styles.queueBox}>
                         <FlatList
-                            data={data}
+                            data={playlist}
                             renderItem={({ item }) => <TrackQueue item={item} />}
-                            keyExtractor={item => item.name.toString()}
+                            keyExtractor={(item, index) => item.name + index.toString()}
                         />
                     </View>
                 </View>
