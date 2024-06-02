@@ -77,7 +77,7 @@ class SpotifyAPI {
         params: {
           q: trackName,
           type: 'track',
-          limit: 5
+          limit: 20
         },
         headers: {
           Authorization: `Bearer ${token}`

@@ -34,7 +34,6 @@ const RoomScreen = () => {
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
     let num = 0
 
-
     // HEADER
     const navigation = useNavigation();
     const [imageUrl, setImageUrl] = useState('');
@@ -168,72 +167,63 @@ const RoomScreen = () => {
                 const trackId = data[0].url.substring(data[0].url.lastIndexOf('/') + 1);
                 let trackUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl
                 setImageUrl(trackUrl)
-              }
-              chargeImage()
+            }
+            chargeImage()
         });
-    }, [playlist, num]);
+    }, [num, playlist]);
 
 
     // GESTIONAR REPRODUCCIÓN DE CANCIONES
-    // useEffect(() => {
-    //     let isMounted = true;
+    useEffect(() => {
+        let isMounted = true;
 
-    //     // Función para cargar y reproducir la canción
-    //     const loadAndPlaySong = async (url) => {
-    //         try {
-    //             // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
-    //             const trackMp3 = await SpotifyAPI.getTrackUrl(url);
-    //             const jsonData = JSON.parse(trackMp3);
-    //             const youtubeAudio = jsonData.youtubeVideo.audio[0];
-    //             const youtubeAudioUrl = youtubeAudio.url;
+        // Función para cargar y reproducir la canción
+        const loadAndPlaySong = async (url) => {
+            try {
+                console.log('Realizando petición RapidAPI')
+                // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
+                const trackMp3 = await SpotifyAPI.getTrackUrl(url);
+                const jsonData = JSON.parse(trackMp3);
+                const youtubeAudio = jsonData.youtubeVideo.audio[0];
+                const youtubeAudioUrl = youtubeAudio.url;
 
-    //             // Crear y cargar el sonido desde la URL obtenida
-    //             console.log('Loading Sound');
-    //             const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
+                // Crear y cargar el sonido desde la URL obtenida
+                console.log('Loading Sound');
+                const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
 
-    //             // Si el componente está montado, establecer el sonido
-    //             if (isMounted) {
-    //                 setSound(sound);
-    //                 console.log('Playing Sound');
-    //                 await sound.playAsync();
-    //             }
-    //         } catch (error) {
-    //             console.error('Error al cargar o reproducir la canción:', error);
-    //         }
-    //     };
+                // Si el componente está montado, establecer el sonido
+                if (isMounted) {
+                    setSound(sound);
+                    console.log('Playing Sound');
+                    await sound.playAsync();
+                    sound.setOnPlaybackStatusUpdate((status) => {
+                        if (status.isLoaded && status.didJustFinish) {
+                            setCurrentSongIndex((prevIndex) => prevIndex + 1);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar o reproducir la canción:', error);
+            }
+        };
 
-    //     // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
-    //     if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
-    //         const song = playlist[currentSongIndex];
-    //         loadAndPlaySong(song.url);
-    //     }
+        // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
+        if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
+            const song = playlist[currentSongIndex];
+            loadAndPlaySong(song.url);
+            setCurrentSong(song);
+            setPlaylist((prevPlaylist) => prevPlaylist.slice(1));
+        }
 
-    //     // Limpieza: detener el sonido al desmontar el componente
-    //     return () => {
-    //         isMounted = false;
-    //         if (sound) {
-    //             sound.unloadAsync();
-    //         }
-    //     };
-    // }, [currentSongIndex]);
+        // Limpieza: detener el sonido al desmontar el componente
+        return () => {
+            isMounted = false;
+            if (sound) {
+                sound.unloadAsync();
+            }
+        };
+    }, [currentSongIndex]);
 
-    {
-        /*
-        const trackMp3 = await SpotifyAPI.getTrackUrl(url)
-        const jsonData = JSON.parse(trackMp3);
-        console.log(jsonData)
-        const youtubeAudio = jsonData.youtubeVideo.audio[0];
-        const youtubeAudioUrl = youtubeAudio.url;
-        console.log(youtubeAudioUrl);
-
-        console.log('Loading Sound');
-        const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
-        setSound(sound);
-
-        console.log('Playing Sound');
-        await sound.playAsync();
-        */
-    }
 
     const openModal = () => {
         setModalVisible(true);
@@ -405,11 +395,11 @@ const RoomScreen = () => {
                 <View style={styles.playQueueAdmin}>
                     <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
                     <View style={styles.queueBox}>
-                    <FlatList
-                        data={playlist}
-                        renderItem={({ item }) => <TrackQueue item={item} />}
-                        keyExtractor={(item, index) => item.name + index.toString()}
-                    />
+                        <FlatList
+                            data={playlist}
+                            renderItem={({ item }) => <TrackQueue item={item} />}
+                            keyExtractor={(item, index) => item.name + index.toString()}
+                        />
                     </View>
                 </View>
                 <View style={styles.buttonContainer}>
