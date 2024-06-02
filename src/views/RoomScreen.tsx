@@ -32,7 +32,7 @@ const RoomScreen = () => {
     const socketRef = useRef(socket);
     const [sound, setSound] = useState<Audio.Sound | undefined>();
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
-    let num = 0
+    const [skipped, setSkipped] = useState(false);
 
     // HEADER
     const navigation = useNavigation();
@@ -157,52 +157,75 @@ const RoomScreen = () => {
     useEffect(() => {
         // Función para cargar la imagen de la canción
         const chargeImage = async (trackUrl) => {
-            const trackId = trackUrl.substring(trackUrl.lastIndexOf('/') + 1);
-            let imageUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl;
-            setImageUrl(imageUrl);
+            if (trackUrl != null) {
+                const trackId = trackUrl.substring(trackUrl.lastIndexOf('/') + 1);
+                let imageUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl;
+                setImageUrl(imageUrl);
+                if (currentSongIndex == playlist.length) {
+                    setCurrentSong(null)
+                    setImageUrl('a')
+                }
+            } else {
+                setImageUrl(null)
+            }
+
         }
-    
+
         // Función para manejar la recepción de datos de la playlist
         const handlePlaylistData = (data: React.SetStateAction<any[]>) => {
             setPlaylist(data);
-            setCurrentSong(data[0]);
-            chargeImage(data[0].url);
+            setCurrentSong(data[currentSongIndex]);
+            if (data[currentSongIndex] && data[currentSongIndex].url) {
+                chargeImage(data[currentSongIndex].url);
+            }
+
+
         };
-    
+
         // Enviar evento al servidor para solicitar la lista de reproducción
         socket.emit('send_playlist', code);
-    
+
         // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
         socket.on('playlist_data', handlePlaylistData);
-    
+
         // Limpiar la suscripción al evento de socket al desmontar o al actualizar dependencias
         return () => {
             socket.off('playlist_data', handlePlaylistData);
         };
     }, [code, playlist]);
 
+    // Función para saltar la canción
+    const skipSong = async () => {
+        if (sound) {
+            await sound.stopAsync();
+            await sound.unloadAsync();
+            setCurrentSongIndex((prevIndex) => prevIndex + 1);
+            await AsyncStorage.removeItem('playlist');
+            await AsyncStorage.setItem('playlist', JSON.stringify(playlist.slice(currentSongIndex + 2)));
+            setSkipped(true)
+        }
+        
+    };
 
     // GESTIONAR REPRODUCCIÓN DE CANCIONES
     useEffect(() => {
-        let isMounted = true;
-
         // Función para cargar y reproducir la canción
         const loadAndPlaySong = async (url: string) => {
-            if (isHost) {
-                try {
-                    console.log('Realizando petición RapidAPI')
-                    // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
-                    const trackMp3 = await SpotifyAPI.getTrackUrl(url);
-                    const jsonData = JSON.parse(trackMp3);
-                    const youtubeAudio = jsonData.youtubeVideo.audio[0];
-                    const youtubeAudioUrl = youtubeAudio.url;
+            if (url) {
+                if (isHost) {
+                    try {
+                        console.log('Realizando petición RapidAPI');
+                        // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
+                        const trackMp3 = await SpotifyAPI.getTrackUrl(url);
+                        const jsonData = JSON.parse(trackMp3);
+                        const youtubeAudio = jsonData.youtubeVideo.audio[0];
+                        const youtubeAudioUrl = youtubeAudio.url;
 
-                    // Crear y cargar el sonido desde la URL obtenida
-                    console.log('Loading Sound');
-                    const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
+                        // Crear y cargar el sonido desde la URL obtenida
+                        console.log('Loading Sound');
+                        const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
 
-                    // Si el componente está montado, establecer el sonido
-                    if (isMounted) {
+                        // Si el componente está montado, establecer el sonido
                         setSound(sound);
                         console.log('Playing Sound');
                         await sound.playAsync();
@@ -211,30 +234,22 @@ const RoomScreen = () => {
                                 setCurrentSongIndex((prevIndex) => prevIndex + 1);
                             }
                         });
+                    } catch (error) {
+                        console.error('Error al cargar o reproducir la canción:', error);
                     }
-                } catch (error) {
-                    console.error('Error al cargar o reproducir la canción:', error);
                 }
-            };
-
-            // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
-            if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
-                const song = playlist[currentSongIndex];
-                loadAndPlaySong(song.url);
-                setCurrentSong(song);
-                setPlaylist((prevPlaylist) => prevPlaylist.slice(1));
             }
 
-            // Limpieza: detener el sonido al desmontar el componente
-            return () => {
-                isMounted = false;
-                if (sound) {
-                    sound.unloadAsync();
-                }
-            };
-        }
+        };
 
-    }, [currentSongIndex]);
+        // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
+        if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
+            if (playlist[currentSongIndex].url) {
+                loadAndPlaySong(playlist[currentSongIndex].url);
+            }
+
+        }
+    }, [playlist.length > 0, currentSongIndex]);
 
 
     const openModal = () => {
@@ -250,15 +265,15 @@ const RoomScreen = () => {
         return (
             <View>
                 <View style={styles.currentSongInfo}>
-                    {imageUrl ? (
-                        <Image source={{ uri: imageUrl }} style={styles.image} />
+                    {currentSongIndex < playlist.length ? (
+                        <Image source={imageUrl ? { uri: imageUrl } : require('./../assets/images/logo.png')} style={styles.image} />
                     ) : (
                         <Image source={require('./../assets/images/logo.png')} style={styles.image} />
                     )}
                     <View style={{ paddingHorizontal: 5 }} />
                     <View>
                         <CustomText style={styles.actualTrack}>Canción actual</CustomText>
-                        {currentSong ? (
+                        {currentSong && currentSong.name && currentSong.artists ? (
                             <View style={styles.contentBox}>
                                 <CustomText style={styles.dataTrack}>{currentSong.name}</CustomText>
                                 <CustomText style={styles.dataTrack}>{currentSong.artists}</CustomText>
@@ -311,10 +326,6 @@ const RoomScreen = () => {
                     </View>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button}>
-                        <Feather name="shuffle" size={20} color="white" style={{ left: 15 }} />
-                        <CustomText style={styles.buttonTitle}>Realizar votación</CustomText>
-                    </TouchableOpacity>
                     <View style={{ padding: 5 }}></View>
                     <TouchableOpacity style={styles.button} onPress={queueScreen}>
                         <CustomText style={styles.buttonTitle}>Ver Canciones en cola</CustomText>
@@ -329,7 +340,11 @@ const RoomScreen = () => {
     }
 
     const queueScreen = async () => {
-        await AsyncStorage.setItem('playlist', JSON.stringify(playlist));
+        if(!skipped) {
+            await AsyncStorage.removeItem('playlist');
+            await AsyncStorage.setItem('playlist', JSON.stringify(playlist.slice(currentSongIndex + 1)));
+            console.log('Skipped: ', skipped)
+        }
         handlePress('QueueScreen')
     }
 
@@ -373,6 +388,9 @@ const RoomScreen = () => {
 
     // ADMIN INTERFACE
     const adminInterface = () => {
+        let filteredPlaylist: ArrayLike<any>
+        filteredPlaylist = playlist.slice(currentSongIndex + 1);
+
         return (
             <View>
                 <View style={styles.textContainer}>
@@ -380,8 +398,8 @@ const RoomScreen = () => {
                     <CustomText style={styles.code}>{code}</CustomText>
                 </View>
                 <View style={styles.currentSongInfoAdmin}>
-                    {imageUrl ? (
-                        <Image source={{ uri: imageUrl }} style={styles.image} />
+                    {currentSongIndex < playlist.length ? (
+                        <Image source={imageUrl ? { uri: imageUrl } : require('./../assets/images/logo.png')} style={styles.image} />
                     ) : (
                         <Image source={require('./../assets/images/logo.png')} style={styles.image} />
                     )}
@@ -408,16 +426,16 @@ const RoomScreen = () => {
                     <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
                     <View style={styles.queueBox}>
                         <FlatList
-                            data={playlist}
+                            data={filteredPlaylist}
                             renderItem={({ item }) => <TrackQueue item={item} />}
                             keyExtractor={(item, index) => item.name + index.toString()}
                         />
                     </View>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={skipSong}>
                         <Feather name="shuffle" size={20} color="white" style={{ left: 15 }} />
-                        <CustomText style={styles.buttonTitle}>Saltar canción</CustomText>
+                        <CustomText style={styles.buttonTitle} >Saltar canción</CustomText>
                     </TouchableOpacity>
                     <View style={{ padding: 30 }}></View>
                     <TouchableOpacity style={styles.button} onPress={closeRoom}>

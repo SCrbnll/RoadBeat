@@ -28,11 +28,13 @@ const Clock = () => {
     month: 'long',
     day: 'numeric',
   });
-  
-  const capitalizedDate = formattedDate.replace(
-    /\b\w/g,
-    (char) => char.toUpperCase()
-  );
+
+  // Función para capitalizar la primera letra de la cadena
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+  const capitalizedDate = capitalizeFirstLetter(formattedDate);
 
   return (
     <View>
