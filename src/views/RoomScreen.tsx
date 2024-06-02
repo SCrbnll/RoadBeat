@@ -163,6 +163,13 @@ const RoomScreen = () => {
         socket.on('playlist_data', (data) => {
             setPlaylist(data);
             num++
+            setCurrentSong(data[0])
+            const chargeImage = async () => {
+                const trackId = data[0].url.substring(data[0].url.lastIndexOf('/') + 1);
+                let trackUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl
+                setImageUrl(trackUrl)
+              }
+              chargeImage()
         });
     }, [playlist, num]);
 
@@ -371,7 +378,11 @@ const RoomScreen = () => {
                     <CustomText style={styles.code}>{code}</CustomText>
                 </View>
                 <View style={styles.currentSongInfoAdmin}>
-                    <Image source={require('./../assets/images/logo.png')} style={styles.image} />
+                    {imageUrl ? (
+                        <Image source={{ uri: imageUrl }} style={styles.image} />
+                    ) : (
+                        <Image source={require('./../assets/images/logo.png')} style={styles.image} />
+                    )}
                     <View style={{ paddingHorizontal: 5 }} />
                     <View>
                         <CustomText style={styles.actualTrack}>Canción actual</CustomText>
