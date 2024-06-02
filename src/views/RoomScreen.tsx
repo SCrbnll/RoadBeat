@@ -18,11 +18,11 @@ import { Entypo } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { API_URL_LOCAL, API_URL_AZURE } from "@env";
 
-interface Song {
-    name: string;
+interface Track {
+    addedBy: string;
     artists: string;
+    name: string;
     url: string;
-    addedBy: string
 }
 
 const RoomScreen = () => {
@@ -32,13 +32,14 @@ const RoomScreen = () => {
     const socketRef = useRef(socket);
     const [sound, setSound] = useState<Audio.Sound | undefined>();
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
+    let num = 0
 
 
     // HEADER
     const navigation = useNavigation();
     const [imageUrl, setImageUrl] = useState('');
     const [data, setData] = useState<TrackItem[]>([]);
-    const [currentSong, setCurrentSong] = useState<Song | null>(null);
+    const [currentSong, setCurrentSong] = useState<Track | null>(null);
 
     // USER INTERFACE
     const [searchedSong, setSearchedSong] = useState('');
@@ -161,8 +162,9 @@ const RoomScreen = () => {
         // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
         socket.on('playlist_data', (data) => {
             setPlaylist(data);
+            num++
         });
-    }, [playlist]);
+    }, [playlist, num]);
 
 
     // GESTIONAR REPRODUCCIÓN DE CANCIONES
@@ -392,11 +394,11 @@ const RoomScreen = () => {
                 <View style={styles.playQueueAdmin}>
                     <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
                     <View style={styles.queueBox}>
-                        <FlatList
-                            data={playlist}
-                            renderItem={({ item }) => <TrackQueue item={item} />}
-                            keyExtractor={(item, index) => item.name + index.toString()}
-                        />
+                    <FlatList
+                        data={playlist}
+                        renderItem={({ item }) => <TrackQueue item={item} />}
+                        keyExtractor={(item, index) => item.name + index.toString()}
+                    />
                     </View>
                 </View>
                 <View style={styles.buttonContainer}>
