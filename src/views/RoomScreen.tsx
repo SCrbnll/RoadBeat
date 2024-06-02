@@ -155,22 +155,31 @@ const RoomScreen = () => {
 
     // CARGAR INFORMACIÓN DE CANCIONES EN COLA SOCKET SERVER
     useEffect(() => {
+        // Función para cargar la imagen de la canción
+        const chargeImage = async (trackUrl) => {
+            const trackId = trackUrl.substring(trackUrl.lastIndexOf('/') + 1);
+            let imageUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl;
+            setImageUrl(imageUrl);
+        }
+    
+        // Función para manejar la recepción de datos de la playlist
+        const handlePlaylistData = (data: React.SetStateAction<any[]>) => {
+            setPlaylist(data);
+            setCurrentSong(data[0]);
+            chargeImage(data[0].url);
+        };
+    
         // Enviar evento al servidor para solicitar la lista de reproducción
         socket.emit('send_playlist', code);
-
+    
         // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
-        socket.on('playlist_data', (data) => {
-            setPlaylist(data);
-            num++
-            setCurrentSong(data[0])
-            const chargeImage = async () => {
-                const trackId = data[0].url.substring(data[0].url.lastIndexOf('/') + 1);
-                let trackUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl
-                setImageUrl(trackUrl)
-            }
-            chargeImage()
-        });
-    }, [num, playlist]);
+        socket.on('playlist_data', handlePlaylistData);
+    
+        // Limpiar la suscripción al evento de socket al desmontar o al actualizar dependencias
+        return () => {
+            socket.off('playlist_data', handlePlaylistData);
+        };
+    }, [code, playlist]);
 
 
     // GESTIONAR REPRODUCCIÓN DE CANCIONES
@@ -178,50 +187,53 @@ const RoomScreen = () => {
         let isMounted = true;
 
         // Función para cargar y reproducir la canción
-        const loadAndPlaySong = async (url) => {
-            try {
-                console.log('Realizando petición RapidAPI')
-                // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
-                const trackMp3 = await SpotifyAPI.getTrackUrl(url);
-                const jsonData = JSON.parse(trackMp3);
-                const youtubeAudio = jsonData.youtubeVideo.audio[0];
-                const youtubeAudioUrl = youtubeAudio.url;
+        const loadAndPlaySong = async (url: string) => {
+            if (isHost) {
+                try {
+                    console.log('Realizando petición RapidAPI')
+                    // Obtener la URL de la canción desde la API de Spotify o tu fuente de datos
+                    const trackMp3 = await SpotifyAPI.getTrackUrl(url);
+                    const jsonData = JSON.parse(trackMp3);
+                    const youtubeAudio = jsonData.youtubeVideo.audio[0];
+                    const youtubeAudioUrl = youtubeAudio.url;
 
-                // Crear y cargar el sonido desde la URL obtenida
-                console.log('Loading Sound');
-                const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
+                    // Crear y cargar el sonido desde la URL obtenida
+                    console.log('Loading Sound');
+                    const { sound } = await Audio.Sound.createAsync({ uri: youtubeAudioUrl });
 
-                // Si el componente está montado, establecer el sonido
-                if (isMounted) {
-                    setSound(sound);
-                    console.log('Playing Sound');
-                    await sound.playAsync();
-                    sound.setOnPlaybackStatusUpdate((status) => {
-                        if (status.isLoaded && status.didJustFinish) {
-                            setCurrentSongIndex((prevIndex) => prevIndex + 1);
-                        }
-                    });
+                    // Si el componente está montado, establecer el sonido
+                    if (isMounted) {
+                        setSound(sound);
+                        console.log('Playing Sound');
+                        await sound.playAsync();
+                        sound.setOnPlaybackStatusUpdate((status) => {
+                            if (status.isLoaded && status.didJustFinish) {
+                                setCurrentSongIndex((prevIndex) => prevIndex + 1);
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error al cargar o reproducir la canción:', error);
                 }
-            } catch (error) {
-                console.error('Error al cargar o reproducir la canción:', error);
-            }
-        };
+            };
 
-        // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
-        if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
-            const song = playlist[currentSongIndex];
-            loadAndPlaySong(song.url);
-            setCurrentSong(song);
-            setPlaylist((prevPlaylist) => prevPlaylist.slice(1));
+            // Si hay canciones en la lista y el índice actual está dentro de los límites de la lista
+            if (playlist && playlist.length > 0 && currentSongIndex < playlist.length) {
+                const song = playlist[currentSongIndex];
+                loadAndPlaySong(song.url);
+                setCurrentSong(song);
+                setPlaylist((prevPlaylist) => prevPlaylist.slice(1));
+            }
+
+            // Limpieza: detener el sonido al desmontar el componente
+            return () => {
+                isMounted = false;
+                if (sound) {
+                    sound.unloadAsync();
+                }
+            };
         }
 
-        // Limpieza: detener el sonido al desmontar el componente
-        return () => {
-            isMounted = false;
-            if (sound) {
-                sound.unloadAsync();
-            }
-        };
     }, [currentSongIndex]);
 
 
