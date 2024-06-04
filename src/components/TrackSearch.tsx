@@ -80,7 +80,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, socket, username }) => 
       <Image source={{ uri: item.album.images[0].url }} style={styles.image} />
       <View style={{ flexDirection: 'row' }}>
         <View style={{ flexDirection: 'column' }}>
-          <CustomText style={styles.nameTrack} numberOfLines={1} ellipsizeMode="tail">{item.name}</CustomText>
+          <CustomText style={styles.nameTrack} numberOfLines={2} ellipsizeMode="tail">{item.name}</CustomText>
           <CustomText style={styles.artistTrack} numberOfLines={1} ellipsizeMode="tail">{item.artists.map(artist => artist.name).join(', ')}</CustomText>
         </View>
         <Entypo
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'Krona One',
     color: '#FFFFFF',
-    top: 15,
+    top: 10,
     left: 50,
     width: 150,
   },
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontFamily: 'Krona One',
     color: '#FFFFFF',
-    top: 15,
+    top: 10,
     left: 50,
     width: 150,
   },

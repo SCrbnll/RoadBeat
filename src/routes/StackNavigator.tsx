@@ -26,7 +26,6 @@ import HeaderRoomScreen from "../components/HeaderRoomScreen";
 import HeaderCustom from "../components/HeaderCustom";
 import DeleteUser from "../views/DeleteUser";
 import RoomScreen from "../views/RoomScreen";
-import QueueScreen from "../views/QueueScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -98,8 +97,6 @@ function Navigation() {
                 <Stack.Screen name="ChangePassword" component={ChangeProfile} options={{header: () => <HeaderCustom title={'Cambio de contraseña'}/>,}}/>
                 <Stack.Screen name="DeleteUser" component={DeleteUser} options={{header: () => <HeaderCustom title={'Eliminar cuenta'}/>,}}/>
                 <Stack.Screen name="RoomScreen" component={RoomScreen} options={{header: () => <HeaderRoomScreen />,}}/>
-                <Stack.Screen name="QueueScreen" component={QueueScreen} options={{header: () => <HeaderRoomScreen />,}}/>
-
             </Stack.Navigator>
         </NavigationContainer>
     )

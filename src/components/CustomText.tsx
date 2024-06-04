@@ -19,7 +19,10 @@ const CustomText = (props) => {
             return <Text>Loading...</Text>;
         }
         return (
-        <Text style={{ ...props.style, fontFamily: 'krona-one' }}>
+        <Text style={{ ...props.style, fontFamily: 'krona-one' }}
+            numberOfLines={props.numberOfLines}
+            ellipsizeMode={props.ellipsizeMode}
+        >
             {props.children}
         </Text>
     );

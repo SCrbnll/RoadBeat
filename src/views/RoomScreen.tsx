@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, Image, TouchableOpacity, TextInput, Alert, BackHandler } from "react-native"
+import { StyleSheet, View, FlatList, Image, TouchableOpacity, TextInput, BackHandler, } from "react-native"
 import React from "react"
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,7 +32,7 @@ const RoomScreen = () => {
     const socketRef = useRef(socket);
     const [sound, setSound] = useState<Audio.Sound | undefined>();
     const [currentSongIndex, setCurrentSongIndex] = useState(0);
-    const [skipped, setSkipped] = useState(false);
+    const [queueView, setQueueView] = useState(false)
 
     // HEADER
     const navigation = useNavigation();
@@ -56,6 +56,19 @@ const RoomScreen = () => {
     const handlePress = (screenName) => {
         navigation.navigate(screenName as never);
     };
+
+    useEffect(() => {
+        const backAction = () => {
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        return () => {
+            backHandler.remove();
+        };
+    }, []);
+
 
     // CARGAR INFORMACIÓN INICIAL Y REGISTRAR USUARIO SOCKET SERVER
     useEffect(() => {
@@ -99,8 +112,10 @@ const RoomScreen = () => {
 
                 if (room.usuarios.id == userId) {
                     setIsHost(true);
+                    setQueueView(true)
                 } else {
                     setIsHost(false);
+                    setQueueView(queueView)
                 }
 
                 await SpotifyAPI.getToken();
@@ -111,18 +126,6 @@ const RoomScreen = () => {
 
         checkUserRole();
 
-        const backAction = () => {
-            if (isHost) {
-                handleConfirmAdmin();
-            } else {
-                handleConfirmUser();
-            }
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-        return () => backHandler.remove();
     }, [isHost]);
 
     // UNIÓN USUARIO Y ROOM EN SOCKET SERVER
@@ -155,22 +158,6 @@ const RoomScreen = () => {
 
     // CARGAR INFORMACIÓN DE CANCIONES EN COLA SOCKET SERVER
     useEffect(() => {
-        // Función para cargar la imagen de la canción
-        const chargeImage = async (trackUrl) => {
-            if (trackUrl != null) {
-                const trackId = trackUrl.substring(trackUrl.lastIndexOf('/') + 1);
-                let imageUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl;
-                setImageUrl(imageUrl);
-                if (currentSongIndex == playlist.length) {
-                    setCurrentSong(null)
-                    setImageUrl('a')
-                }
-            } else {
-                setImageUrl(null)
-            }
-
-        }
-
         // Función para manejar la recepción de datos de la playlist
         const handlePlaylistData = (data: React.SetStateAction<any[]>) => {
             setPlaylist(data);
@@ -178,14 +165,12 @@ const RoomScreen = () => {
             if (data[currentSongIndex] && data[currentSongIndex].url) {
                 chargeImage(data[currentSongIndex].url);
             }
-
-
         };
 
         // Enviar evento al servidor para solicitar la lista de reproducción
         socket.emit('send_playlist', code);
 
-        // Escuchar el evento 'playlist_data' del servidor y actualizar el estado con la lista de reproducción recibida
+        // Escuchar el evento 'playlist_data' del servidor ycd actualizar el estado con la lista de reproducción recibida
         socket.on('playlist_data', handlePlaylistData);
 
         // Limpiar la suscripción al evento de socket al desmontar o al actualizar dependencias
@@ -196,15 +181,15 @@ const RoomScreen = () => {
 
     // Función para saltar la canción
     const skipSong = async () => {
-        if (sound) {
-            await sound.stopAsync();
-            await sound.unloadAsync();
-            setCurrentSongIndex((prevIndex) => prevIndex + 1);
-            await AsyncStorage.removeItem('playlist');
-            await AsyncStorage.setItem('playlist', JSON.stringify(playlist.slice(currentSongIndex + 2)));
-            setSkipped(true)
+        try {
+            if (sound) {
+                await sound.stopAsync();
+                await sound.unloadAsync();
+                setCurrentSongIndex((prevIndex) => prevIndex + 1);
+            }
+        } catch (error) {
+            console.log(error)
         }
-        
     };
 
     // GESTIONAR REPRODUCCIÓN DE CANCIONES
@@ -260,11 +245,30 @@ const RoomScreen = () => {
         setModalVisible(false);
     };
 
-    // USER INTERFACE
-    const userInterface = () => {
+    const chargeImage = async (trackUrl) => {
+        if (trackUrl != null) {
+            const trackId = trackUrl.substring(trackUrl.lastIndexOf('/') + 1);
+            let imageUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl;
+            setImageUrl(imageUrl);
+            if (currentSongIndex == playlist.length) {
+                setCurrentSong(null)
+                setImageUrl('a')
+            }
+        } else {
+            setImageUrl(null)
+        }
+
+    }
+
+    // INTERFACE
+    const headerRoom = () => {
         return (
             <View>
-                <View style={styles.currentSongInfo}>
+                <View style={styles.textContainer}>
+                    <CustomText style={styles.title}>Código de la Sala</CustomText>
+                    <CustomText style={styles.code}>{code}</CustomText>
+                </View>
+                <View style={styles.currentSongInfoAdmin}>
                     {currentSongIndex < playlist.length ? (
                         <Image source={imageUrl ? { uri: imageUrl } : require('./../assets/images/logo.png')} style={styles.image} />
                     ) : (
@@ -275,8 +279,8 @@ const RoomScreen = () => {
                         <CustomText style={styles.actualTrack}>Canción actual</CustomText>
                         {currentSong && currentSong.name && currentSong.artists ? (
                             <View style={styles.contentBox}>
-                                <CustomText style={styles.dataTrack}>{currentSong.name}</CustomText>
-                                <CustomText style={styles.dataTrack}>{currentSong.artists}</CustomText>
+                                <CustomText style={styles.dataTrack} numberOfLines={2} ellipsizeMode="tail">{currentSong.name}</CustomText>
+                                <CustomText style={styles.dataTrack} numberOfLines={1} ellipsizeMode="tail">{currentSong.artists}</CustomText>
                             </View>
                         ) : (
                             <View style={styles.contentBox}>
@@ -288,7 +292,49 @@ const RoomScreen = () => {
                         ) : null}
                     </View>
                 </View>
-                <View style={styles.textInputLine} />
+            </View>
+        )
+    }
+
+
+    const searchSong = async () => {
+        if (searchedSong.trim().length > 0) {
+            try {
+                const searchResult = await SpotifyAPI.searchSongs(searchedSong);
+                const tracks = searchResult.tracks.items;
+                setData(tracks);
+            } catch (error) {
+                console.error('Error al buscar canciones:', error);
+            }
+        } else {
+            setCustomModalVisible(false)
+            setModalTitle('Error')
+            setModalMessage('Debe escribir el nombre de la canción para realizar la búsqueda');
+            openModal();
+        }
+    }
+    const queueViewScreen = () => {
+        let filteredPlaylist: ArrayLike<any>
+        filteredPlaylist = playlist.slice(currentSongIndex + 1);
+        return (
+            <View>
+                <View style={styles.playQueueAdmin}>
+                    <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
+                    <View style={styles.queueBox}>
+                        <FlatList
+                            data={filteredPlaylist}
+                            renderItem={({ item }) => <TrackQueue item={item} />}
+                            keyExtractor={(item, index) => item.name + index.toString()}
+                        />
+                    </View>
+                </View>
+            </View>
+        );
+    }
+    const searchViewScreen = () => {
+        return (
+            <View>
+                <View style={{ padding: 5 }}></View>
                 <View style={styles.playQueue}>
                     <View style={{ flexDirection: "row" }}>
                         <Entypo name="magnifying-glass" size={20} color="white" style={{ alignSelf: 'center' }} />
@@ -325,45 +371,20 @@ const RoomScreen = () => {
 
                     </View>
                 </View>
-                <View style={styles.buttonContainer}>
-                    <View style={{ padding: 5 }}></View>
-                    <TouchableOpacity style={styles.button} onPress={queueScreen}>
-                        <CustomText style={styles.buttonTitle}>Ver Canciones en cola</CustomText>
-                    </TouchableOpacity>
-                    <View style={{ padding: 20 }}></View>
-                    <TouchableOpacity style={styles.button} onPress={leaveRoom}>
-                        <CustomText style={styles.buttonTitle}>Abandonar sala</CustomText>
-                    </TouchableOpacity>
-                </View>
+
             </View>
-        );
+        )
     }
 
-    const queueScreen = async () => {
-        if(!skipped) {
-            await AsyncStorage.removeItem('playlist');
-            await AsyncStorage.setItem('playlist', JSON.stringify(playlist.slice(currentSongIndex + 1)));
-            console.log('Skipped: ', skipped)
-        }
-        handlePress('QueueScreen')
-    }
+    const toogleQueueView = () => {
+        if (queueView) {
+            setQueueView(false)
 
-    const searchSong = async () => {
-        if (searchedSong.trim().length > 0) {
-            try {
-                const searchResult = await SpotifyAPI.searchSongs(searchedSong);
-                const tracks = searchResult.tracks.items;
-                setData(tracks);
-            } catch (error) {
-                console.error('Error al buscar canciones:', error);
-            }
         } else {
-            setCustomModalVisible(false)
-            setModalTitle('Error')
-            setModalMessage('Debe escribir el nombre de la canción para realizar la búsqueda');
-            openModal();
+            setQueueView(true)
         }
     }
+
 
     const handleConfirmUser = async () => {
         const roomCode = await AsyncStorage.getItem('room_code');
@@ -371,7 +392,7 @@ const RoomScreen = () => {
         await AsyncStorage.removeItem("room_code")
         socketRef.current.emit('leave_room', roomCode);
         handlePress('Main');
-    };
+    }
 
     const leaveRoom = async () => {
         try {
@@ -386,65 +407,6 @@ const RoomScreen = () => {
         }
     }
 
-    // ADMIN INTERFACE
-    const adminInterface = () => {
-        let filteredPlaylist: ArrayLike<any>
-        filteredPlaylist = playlist.slice(currentSongIndex + 1);
-
-        return (
-            <View>
-                <View style={styles.textContainer}>
-                    <CustomText style={styles.title}>Código de la Sala</CustomText>
-                    <CustomText style={styles.code}>{code}</CustomText>
-                </View>
-                <View style={styles.currentSongInfoAdmin}>
-                    {currentSongIndex < playlist.length ? (
-                        <Image source={imageUrl ? { uri: imageUrl } : require('./../assets/images/logo.png')} style={styles.image} />
-                    ) : (
-                        <Image source={require('./../assets/images/logo.png')} style={styles.image} />
-                    )}
-                    <View style={{ paddingHorizontal: 5 }} />
-                    <View>
-                        <CustomText style={styles.actualTrack}>Canción actual</CustomText>
-                        {currentSong && currentSong.name && currentSong.artists ? (
-                            <View style={styles.contentBox}>
-                                <CustomText style={styles.dataTrack}>{currentSong.name}</CustomText>
-                                <CustomText style={styles.dataTrack}>{currentSong.artists}</CustomText>
-                            </View>
-                        ) : (
-                            <View style={styles.contentBox}>
-                                <CustomText style={styles.dataTrack}>No hay ninguna canción reproduciéndose</CustomText>
-                            </View>
-                        )}
-                        {currentSong && currentSong.addedBy ? (
-                            <CustomText style={styles.addedBy}>Agregada por {currentSong.addedBy}</CustomText>
-                        ) : null}
-                    </View>
-                </View>
-                <View style={styles.textInputLineAdmin} />
-                <View style={styles.playQueueAdmin}>
-                    <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
-                    <View style={styles.queueBox}>
-                        <FlatList
-                            data={filteredPlaylist}
-                            renderItem={({ item }) => <TrackQueue item={item} />}
-                            keyExtractor={(item, index) => item.name + index.toString()}
-                        />
-                    </View>
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button} onPress={skipSong}>
-                        <Feather name="shuffle" size={20} color="white" style={{ left: 15 }} />
-                        <CustomText style={styles.buttonTitle} >Saltar canción</CustomText>
-                    </TouchableOpacity>
-                    <View style={{ padding: 30 }}></View>
-                    <TouchableOpacity style={styles.button} onPress={closeRoom}>
-                        <CustomText style={styles.buttonTitle}>Cerrar sala</CustomText>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        )
-    }
 
     const closeRoom = async () => {
         try {
@@ -499,7 +461,32 @@ const RoomScreen = () => {
                         message={modalMessage}
                     />
             }
-            {isHost ? adminInterface() : userInterface()}
+            {headerRoom()}
+            <View style={styles.textInputLineAdmin} />
+            {queueView ? queueViewScreen() : searchViewScreen()}
+            {isHost ? (
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.button} onPress={skipSong}>
+                        <Feather name="shuffle" size={20} color="white" style={{ left: 15 }} />
+                        <CustomText style={styles.buttonTitle} >Saltar canción</CustomText>
+                    </TouchableOpacity>
+                    <View style={{ padding: 30 }}></View>
+                    <TouchableOpacity style={styles.button} onPress={closeRoom}>
+                        <CustomText style={styles.buttonTitle}>Cerrar sala</CustomText>
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <View style={styles.buttonContainer}>
+                    <View style={{ padding: 5 }}></View>
+                    <TouchableOpacity style={styles.button} onPress={toogleQueueView}>
+                        <CustomText style={styles.buttonTitle}>{queueView ? 'Agregar canciones' : 'Ver Canciones en cola'}</CustomText>
+                    </TouchableOpacity>
+                    <View style={{ padding: 20 }}></View>
+                    <TouchableOpacity style={styles.button} onPress={leaveRoom}>
+                        <CustomText style={styles.buttonTitle}>Abandonar sala</CustomText>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     )
 };
@@ -520,8 +507,8 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontFamily: 'Krona One',
         color: '#FFFFFF',
-        left: 20,
-        top: 15
+        left: 10,
+        top: 10
     },
     addedBy: {
         fontSize: 10,
