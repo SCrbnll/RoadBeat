@@ -264,10 +264,6 @@ const RoomScreen = () => {
     const headerRoom = () => {
         return (
             <View>
-                <View style={styles.textContainer}>
-                    <CustomText style={styles.title}>Código de la Sala</CustomText>
-                    <CustomText style={styles.code}>{code}</CustomText>
-                </View>
                 <View style={styles.currentSongInfoAdmin}>
                     {currentSongIndex < playlist.length ? (
                         <Image source={imageUrl ? { uri: imageUrl } : require('./../assets/images/logo.png')} style={styles.image} />
@@ -352,7 +348,7 @@ const RoomScreen = () => {
                     </View>
                     <View>
                         {data.length > 0 ? (
-                            <View style={styles.queueBox}>
+                            <View style={styles.searchBox}>
                                 <FlatList
                                     data={data}
                                     renderItem={({ item }) => <TrackSearch item={item} socket={socket} username={username} />}
@@ -361,7 +357,7 @@ const RoomScreen = () => {
                             </View>
 
                         ) : (
-                            <View style={styles.queueBox}>
+                            <View style={styles.searchBox}>
                                 <View style={styles.noSearchedSong}>
                                     <FontAwesome5 name="ghost" size={52} color="white" style={styles.iconQueuBox} />
                                     <CustomText style={styles.titleNoSearchedSong}>Escribe el nombre de la cancíón que deseas escuchar</CustomText>
@@ -375,16 +371,6 @@ const RoomScreen = () => {
             </View>
         )
     }
-
-    const toogleQueueView = () => {
-        if (queueView) {
-            setQueueView(false)
-
-        } else {
-            setQueueView(true)
-        }
-    }
-
 
     const handleConfirmUser = async () => {
         const roomCode = await AsyncStorage.getItem('room_code');
@@ -461,7 +447,11 @@ const RoomScreen = () => {
                         message={modalMessage}
                     />
             }
-            {headerRoom()}
+            <View style={styles.textContainer}>
+                    <CustomText style={styles.title}>Código de la Sala</CustomText>
+                    <CustomText style={styles.code}>{code}</CustomText>
+            </View>
+            {isHost ? headerRoom() : null}
             <View style={styles.textInputLineAdmin} />
             {queueView ? queueViewScreen() : searchViewScreen()}
             {isHost ? (
@@ -478,9 +468,6 @@ const RoomScreen = () => {
             ) : (
                 <View style={styles.buttonContainer}>
                     <View style={{ padding: 5 }}></View>
-                    <TouchableOpacity style={styles.button} onPress={toogleQueueView}>
-                        <CustomText style={styles.buttonTitle}>{queueView ? 'Agregar canciones' : 'Ver Canciones en cola'}</CustomText>
-                    </TouchableOpacity>
                     <View style={{ padding: 20 }}></View>
                     <TouchableOpacity style={styles.button} onPress={leaveRoom}>
                         <CustomText style={styles.buttonTitle}>Abandonar sala</CustomText>
@@ -533,6 +520,12 @@ const styles = StyleSheet.create({
     queueBox: {
         backgroundColor: '#000000',
         height: 310,
+        width: 360,
+        top: 10,
+    },
+    searchBox: {
+        backgroundColor: '#000000',
+        height: 450,
         width: 360,
         top: 10,
     },
@@ -632,7 +625,7 @@ const styles = StyleSheet.create({
     },
     noSearchedSong: {
         alignSelf: 'center',
-        padding: 40,
+        padding: 100,
         justifyContent: 'space-between',
     },
     iconQueuBox: {
