@@ -179,19 +179,6 @@ const RoomScreen = () => {
         };
     }, [code, playlist]);
 
-    // Función para saltar la canción
-    const skipSong = async () => {
-        try {
-            if (sound) {
-                await sound.stopAsync();
-                await sound.unloadAsync();
-                setCurrentSongIndex((prevIndex) => prevIndex + 1);
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    };
-
     // GESTIONAR REPRODUCCIÓN DE CANCIONES
     useEffect(() => {
         // Función para cargar y reproducir la canción
@@ -236,6 +223,18 @@ const RoomScreen = () => {
         }
     }, [playlist.length > 0, currentSongIndex]);
 
+     // Función para saltar la canción
+     const skipSong = async () => {
+        try {
+            if (sound) {
+                await sound.stopAsync();
+                await sound.unloadAsync();
+                setCurrentSongIndex((prevIndex) => prevIndex + 1);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
 
     const openModal = () => {
         setModalVisible(true);

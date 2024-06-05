@@ -6,6 +6,8 @@ import { Socket } from 'socket.io-client';
 import CustomText from "./CustomText"
 import { Entypo } from '@expo/vector-icons';
 import { API_URL_LOCAL, API_URL_AZURE } from "@env";
+import AlertModal from "./AlertModal";
+import { useState } from "react";
 
 
 interface TrackSearchProps {
@@ -15,6 +17,7 @@ interface TrackSearchProps {
 }
 
 const TrackSearch: React.FC<TrackSearchProps> = ({ item, socket, username }) => {
+  const [alertVisible, setAlertVisible] = useState(false);
 
   const addSongServer = async (url: string) => {
     try {
@@ -26,8 +29,9 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, socket, username }) => 
         name: item.name,
         artists: item.artists.map(artist => artist.name).join(', '),
         url: item.external_urls.spotify,
-        addedBy: username 
+        addedBy: username
       });
+      setAlertVisible(true);
 
     } catch (error) {
       console.error(error);
@@ -92,6 +96,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ item, socket, username }) => 
             addSongServer(item.external_urls.spotify);
           }}
         />
+        <AlertModal visible={alertVisible} message={"Canción agregada con éxito"} onClose={() => setAlertVisible(false)}></AlertModal>
       </View>
     </View>
   );

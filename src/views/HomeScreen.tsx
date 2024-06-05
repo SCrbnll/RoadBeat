@@ -238,7 +238,7 @@ const HomeScreen = () => {
                 </View>
                 <View style={{marginVertical: 25}}></View>
                 <Line />
-                <View style={{padding: 15}} />
+                <View style={{padding: 20}} />
                 <View style = {styles.contentBox}>
                     <CustomText style={styles.titleTwo}> Escribe el código de la sala {"\n"}que deseas unirte </CustomText>
                     <View style={{padding: 15}}></View>
