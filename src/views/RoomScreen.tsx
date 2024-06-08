@@ -232,7 +232,6 @@ const RoomScreen = () => {
                 setCurrentSongIndex((prevIndex) => prevIndex + 1);
             }
         } catch (error) {
-            console.log(error)
         }
     };
 
@@ -316,11 +315,18 @@ const RoomScreen = () => {
                 <View style={styles.playQueueAdmin}>
                     <CustomText style={styles.actualTrack}>Canciones en cola</CustomText>
                     <View style={styles.queueBox}>
+                    {playlist.length > 0 ? (
                         <FlatList
                             data={filteredPlaylist}
                             renderItem={({ item }) => <TrackQueue item={item} />}
                             keyExtractor={(item, index) => item.name + index.toString()}
                         />
+                    ) : (
+                        <View style={styles.noQueueSongs}>
+                            <FontAwesome5 name="ghost" size={52} color="white" style={styles.iconQueuBox} />
+                            <CustomText style={styles.titleNoSearchedSong}>No hay canciones en cola actualmente</CustomText>
+                        </View>
+                    )}
                     </View>
                 </View>
             </View>
@@ -423,6 +429,10 @@ const RoomScreen = () => {
         await AsyncStorage.removeItem("room_id")
         await AsyncStorage.removeItem("room_code")
         socketRef.current.emit('leave_room', roomCode);
+        if(sound != null){
+            await sound.stopAsync();
+            await sound.unloadAsync();
+        }
         handlePress('Main');
     };
 
@@ -625,6 +635,11 @@ const styles = StyleSheet.create({
     noSearchedSong: {
         alignSelf: 'center',
         padding: 100,
+        justifyContent: 'space-between',
+    },
+    noQueueSongs: {
+        alignSelf: 'center',
+        padding: 50,
         justifyContent: 'space-between',
     },
     iconQueuBox: {
