@@ -7,14 +7,15 @@ import SpotifyAPI from "../types/SpotifyData";
 
 const TrackQueue = ({ item }) => {
   const [img, setImg] = useState('')
+  let trackId: unknown;
   useEffect(() => {
     const chargeImage = async () => {
-      const trackId = item.url.substring(item.url.lastIndexOf('/') + 1);
+      trackId = item.url.substring(item.url.lastIndexOf('/') + 1);
       let trackUrl = await (await SpotifyAPI.getTrackInfo(trackId)).imageUrl
       setImg(trackUrl)
     }
     chargeImage()
-  }, []);
+  }, [trackId]);
     return (
         <View style={styles.contentBox}>
           <Image source={img ? {uri: img} : require('./../assets/images/logo.png')} style={styles.image} />
