@@ -1,49 +1,30 @@
-# RoadBeat
+# Servidor de Socket.IO
 
-**RoadBeat** es una aplicación móvil para mejorar la experiencia de los viajes compartidos a través de la música. Permite a los usuarios crear y unirse a salas de reproducción para compartir y sincronizar canciones en tiempo real. Este proyecto es mi Trabajo de Fin de Grado (TFG) del ciclo superior de Desarrollo de Aplicaciones Multiplataforma. Decidí utilizar **React Native** por mero aprendizaje del framework, ya que es una tecnología popular y multiplataforma que permite desarrollar aplicaciones tanto para Android como para iOS con un único código base.
+Este proyecto es un servidor de **Socket.IO** desarrollado en **Node.js**. Este servidor facilita la comunicación en tiempo real entre los clientes.
 
-## Tecnologías Utilizadas
+## Requisitos
 
-- **Frontend ->** React Native
-- **Backend ->** Spring Boot & Hibernate
-- **Servicios Externos ->** API de Spotify, Azure, Socket.IO
+- Node.js (versión 12 o superior)
+- npm (Node Package Manager)
 
-## Instalación
+## Instalación y Ejecución
 
-### Requisitos
+Navega al directorio del servidor e instala las dependencias necesarias con npm:
 
-- Node.js
-- Expo CLI
+```bash
+cd server
+npm install
+```
 
-### Instrucciones
+### Ejecutar el Servidor
+Para ejecutar el servidor, usa el siguiente comando:
 
-1. *Clona el repositorio:*
-    ```bash
-   git clone https://github.com/SCrbnll/RoadBeat.git
-   ```
-2. *Navega a la rama desarrollo:*
-     ```bash
-    git checkout desarrollo
-    ```
-3. *Instala las dependencias:*
-    ```bash
-    npm install
-    ```
+```bash
+node index.js
+```
 
-4. *Inicia la aplicación:*
-    ```bash
-    npx expo start
-    ```
+### Acceder al Servidor
+Una vez que el servidor esté en funcionamiento, estará escuchando en el puerto configurado (por defecto, el puerto 3000). Puedes cambiar el puerto en el archivo index.js si es necesario.
 
-## Proyectos auxiliares
-- Backend y Base de Datos
-   - *El proyecto de la API de Spring Boot y la base de datos se encuentra en la rama **bbdd-api.***
-
-- Servidor de Socket.IO
-   - *El servidor de Socket.IO se encuentra en la rama **sockets.***
-
-    
-![RoadBeat](roadbeat.png)
-
-## Trailer de la aplicación
-- https://youtu.be/ZsJt--pIcPU
+### Archivos y Directorios Principales
+- server/index.js: *Archivo principal del servidor donde se configura y se ejecuta el servidor de Socket.IO.*
