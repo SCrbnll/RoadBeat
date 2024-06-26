@@ -46,4 +46,4 @@
 ![RoadBeat](roadbeat.png)
 
 ## Trailer de la aplicación
-https://youtu.be/X9w92oRiqTY
+- https://youtu.be/ZsJt--pIcPU
