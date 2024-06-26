@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+    	<property name="hibernate.connection.driver_class">org.mariadb.jdbc.Driver</property>
+		<property name="hibernate.connection.password">1234</property>
+		<property name="hibernate.connection.url">jdbc:mariadb://192.168.100.3:3306/roadbeat</property>
+		<property name="hibernate.connection.username">batoi</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.MariaDBDialect</property>
+		<property name="hibernate.show_sql">true</property>
+		<property name="hibernate.format_sql">false</property>
+		<mapping class="modelo.CodigosSalas" />
+		<mapping class="modelo.Historial" />
+		<mapping class="modelo.Salas" />
+		<mapping class="modelo.Usuarios" />
+    </session-factory>
+</hibernate-configuration>
